@@ -1,0 +1,29 @@
+<link rel="import" href="../polymer/polymer-element.html">
+
+<script>
+  function isLocalhost() {
+    // If we are running somewhere else than on localhost, it's not development
+    return (["localhost","127.0.0.1"].indexOf(window.location.hostname) >= 0);
+  }
+
+  function getHtmlImports(scope, htmlImports) {
+    const imports = [...scope.querySelectorAll("link[rel=import]")];
+    imports.forEach(link => {
+      if (!htmlImports.includes(link.href)) {
+        htmlImports.push(link.href);
+        getHtmlImports(link.import, htmlImports)
+      }
+    });
+    return htmlImports;
+  }
+
+  function isUnbundled() {
+    // If the app is bundled, then polymer.html should be included in some other file
+    const htmlImports = getHtmlImports(document, []);
+    return htmlImports.filter(href=>href.endsWith("polymer/polymer.html")).length > 0;
+  }
+
+  if (isLocalhost() && isUnbundled()) {
+    console.log("Sending usage statistics to https://tools.vaadin.com...");
+  }
+</script>
