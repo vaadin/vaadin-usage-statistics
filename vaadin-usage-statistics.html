@@ -23,7 +23,21 @@
     return htmlImports.filter(href=>href.endsWith("polymer/polymer.html")).length > 0;
   }
 
+  function getUsedVaadinElements() {
+    const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
+    var elementVersionMap = {};
+    elementClasses.forEach(cls => {
+      elementVersionMap[cls.is] = cls.version ? cls.version : "0.0.0";
+    });
+    return elementVersionMap;
+  }
   if (isLocalhost() && isUnbundled()) {
-    console.log("Sending usage statistics to https://tools.vaadin.com...");
+    const delay = 1000; // Should be 15 min or so
+
+    // Wait until the application has been running for a while to see which elements are used
+    setTimeout(() => {
+      const elements = getUsedVaadinElements();
+      console.log("Sending "+JSON.stringify(elements)+" to https://tools.vaadin.com/...");
+    }, delay);
   }
 </script>
