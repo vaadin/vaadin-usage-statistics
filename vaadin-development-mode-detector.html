@@ -1,3 +1,6 @@
+<dom-module id="vaadin-development-mode-probe">
+</dom-module>
+
 <script>
 function isLocalhost() {
   return (["localhost","127.0.0.1"].indexOf(window.location.hostname) >= 0);
@@ -25,5 +28,13 @@ if (!window.Vaadin) {
 }
 if (typeof window.Vaadin.developmentMode === "undefined") {
   window.Vaadin.developmentMode = isLocalhost() && isUnbundled();
+  window.Vaadin.importIfDevelopmentMode = function(url) {
+    if (!window.Vaadin.developmentMode) {
+      return;
+    }
+    var path = Polymer.DomModule.import("vaadin-development-mode-probe").assetpath;
+    path = path+"../"+url;
+    Polymer.importHref(path);
+  }
 }
 </script>
