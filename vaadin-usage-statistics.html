@@ -1,43 +1,20 @@
-<link rel="import" href="../polymer/polymer-element.html">
-
 <script>
-  function isLocalhost() {
-    // If we are running somewhere else than on localhost, it's not development
-    return (["localhost","127.0.0.1"].indexOf(window.location.hostname) >= 0);
-  }
+// Wait until the application has been running for a while to see which elements are used
 
-  function getHtmlImports(scope, htmlImports) {
-    const imports = [...scope.querySelectorAll("link[rel=import]")];
-    imports.forEach(link => {
-      if (!htmlImports.includes(link.href)) {
-        htmlImports.push(link.href);
-        getHtmlImports(link.import, htmlImports)
-      }
-    });
-    return htmlImports;
-  }
+var getUsedVaadinElements = function() {
+  const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
+  var elementVersionMap = {};
+  elementClasses.forEach(cls => {
+    elementVersionMap[cls.is] = cls.version ? cls.version : "0.0.0";
+  });
+  return elementVersionMap;
+}
 
-  function isUnbundled() {
-    // If the app is bundled, then polymer.html should be included in some other file
-    const htmlImports = getHtmlImports(document, []);
-    return htmlImports.filter(href=>href.endsWith("polymer/polymer.html")).length > 0;
-  }
+const delay = 1000; // Should be 15 min or so
+const url = "https://tools.vaadin.com/";
 
-  function getUsedVaadinElements() {
-    const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
-    var elementVersionMap = {};
-    elementClasses.forEach(cls => {
-      elementVersionMap[cls.is] = cls.version ? cls.version : "0.0.0";
-    });
-    return elementVersionMap;
-  }
-  if (isLocalhost() && isUnbundled()) {
-    const delay = 1000; // Should be 15 min or so
-
-    // Wait until the application has been running for a while to see which elements are used
-    setTimeout(() => {
-      const elements = getUsedVaadinElements();
-      console.log("Sending "+JSON.stringify(elements)+" to https://tools.vaadin.com/...");
-    }, delay);
-  }
+setTimeout(() => {
+  const elements = getUsedVaadinElements();
+  console.log("Sending "+JSON.stringify(elements)+" to " + url);
+}, delay);
 </script>

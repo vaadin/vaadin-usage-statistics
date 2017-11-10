@@ -1,0 +1,29 @@
+<script>
+function isLocalhost() {
+  return (["localhost","127.0.0.1"].indexOf(window.location.hostname) >= 0);
+}
+
+function getHtmlImports(scope, htmlImports) {
+  const imports = [...scope.querySelectorAll("link[rel=import]")];
+  imports.forEach(link => {
+    if (!htmlImports.includes(link.href)) {
+      htmlImports.push(link.href);
+      this.getHtmlImports(link.import, htmlImports)
+    }
+  });
+  return htmlImports;
+}
+
+function isUnbundled() {
+  // If the app is bundled, then polymer.html should be included in some bundle and not in `polymer/polymer.html`
+  const htmlImports = this.getHtmlImports(document, []);
+  return htmlImports.filter(href=>href.endsWith("polymer/polymer.html")).length > 0;
+}
+
+if (!window.Vaadin) {
+  window.Vaadin = {};
+}
+if (typeof window.Vaadin.developmentMode === "undefined") {
+  window.Vaadin.developmentMode = isLocalhost() && isUnbundled();
+}
+</script>

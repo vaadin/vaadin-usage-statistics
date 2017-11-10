@@ -19,11 +19,7 @@
     <div class="vertical-section-container centered">
       <demo-snippet>
         <template>
-          <script type="text/javascript">
-          if (["localhost","127.0.0.1"].indexOf(window.location.hostname) >= 0) {
-            Polymer.importHref("../vaadin-usage-statistics/vaadin-usage-statistics.html")
-          }
-          </script>
+          <vaadin-development-mode-detector if-development-mode-load="../vaadin-usage-statistics/vaadin-usage-statistics.html"></vaadin-development-mode-detector>
         </template>
       </demo-snippet>
     </div>
