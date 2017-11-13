@@ -2,7 +2,8 @@
   "name": "vaadin-usage-statistics",
   "main": "vaadin-usage-statistics.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#^2.0.0"
+    "polymer": "Polymer/polymer#^2.0.0",
+    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector"
   },
   "devDependencies": {
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^2.0.0",

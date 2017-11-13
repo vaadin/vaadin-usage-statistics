@@ -1,20 +1,39 @@
+<link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
+
 <script>
 // Wait until the application has been running for a while to see which elements are used
 
-var getUsedVaadinElements = function() {
+const getUsedVaadinElements = function() {
   const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
-  var elementVersionMap = {};
+  const elementVersions = [];
   elementClasses.forEach(cls => {
-    elementVersionMap[cls.is] = cls.version ? cls.version : "0.0.0";
+    elementVersions.push({element: cls.is, version: cls.version ? cls.version : "0.0.0"});
   });
-  return elementVersionMap;
+  return elementVersions;
 }
 
 const delay = 3000; // Should be 15 min or so
 const url = "https://tools.vaadin.com/";
-
-setTimeout(() => {
+const gatherStats = function() {
   const elements = getUsedVaadinElements();
+  if (elements.length == 0) {
+    // No Vaadin elements in use, ignore
+    return;
+  }
   console.log("Sending "+JSON.stringify(elements)+" to " + url);
-}, delay);
+}
+
+const delayedGatherStats = function() {
+  setTimeout(() => {
+    gatherStats();
+  }, delay);
+
+}
+
+if (HTMLImports.ready) {
+  delayedGatherStats();
+} else {
+  HTMLImports.whenReady(delayedGatherStats);
+}
+
 </script>
