@@ -1,26 +1,108 @@
 <link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
 
 <script>
+const frameworkVersionDetectors = {
+  'Flow': function() {
+    if (window.vaadin && window.vaadin.clients) {
+      var flowVersions = Object.values(window.vaadin.clients)
+      .filter(client => client.getVersionInfo)
+      .map(client => client.getVersionInfo().flow);
+      if (flowVersions.length > 0) {
+        return flowVersions[0];
+      }
+    }
+  },
+  'Vaadin Framework': function() {
+    if (window.vaadin && window.vaadin.clients) {
+      var frameworkVersions = Object.values(window.vaadin.clients)
+        .filter(client => client.getVersionInfo)
+        .map(client => client.getVersionInfo().vaadinVersion);
+      if (frameworkVersions.length > 0) {
+        return frameworkVersions[0];
+      }
+    }
+  },
+  'AngularJs': function() {
+    if (window.angular && window.angular.version && window.angular.version) {
+      return window.angular.version.full;
+    }
+  },
+  'Angular': function() {
+    if (window.ng) {
+      const tags = document.querySelectorAll("[ng-version]");
+      if (tags.length > 0) {
+        return tags[0].getAttribute("ng-version");
+      }
+      return "Unknown";
+    }
+  },
+  'Backbone.js': function() {
+    if (window.Backbone) {
+      return window.Backbone.VERSION;
+    }
+  },
+  'React': function() {
+    var reactSelector = '[data-reactroot], [data-reactid]';
+    if (!!document.querySelector(reactSelector)) {
+      // React does not publish the version by default
+      return "unknown";
+    }
+  },
+  'Ember': function() {
+    if (window.Em && window.Em.VERSION) {
+      return window.Em.VERSION;
+    } else if (window.Ember && window.Ember.VERSION) {
+      return window.Ember.VERSION;
+    }
+  },
+  'jQuery': function() {
+    if (typeof jQuery === 'function' && jQuery.prototype.jquery !== undefined) {
+      return jQuery.prototype.jquery;
+    }
+  },
+  'Polymer': function() {
+    if (window.Polymer && window.Polymer.version) {
+      return window.Polymer.version;
+    }
+  },
+  'Vue.js': function() {
+    if (window.Vue) {
+      return window.Vue.version;
+    }
+  }
+};
 // Wait until the application has been running for a while to see which elements are used
-
-const getUsedVaadinElements = function() {
+const getUsedVaadinElements = function(versions) {
   const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
-  const elementVersions = [];
   elementClasses.forEach(cls => {
-    elementVersions.push({element: cls.is, version: cls.version ? cls.version : "0.0.0"});
+    const version = cls.version ? cls.version : "0.0.0";
+    versions.push({element: cls.is, version: version});
   });
-  return elementVersions;
+}
+const getFrameworks = function(versions) {
+  Object.keys(frameworkVersionDetectors).forEach(framework => {
+    const detector = frameworkVersionDetectors[framework];
+    try {
+      const version = detector();
+      if (version) {
+        versions.push({framework: framework, version: version});
+      }
+    } catch (e) {
+    }
+  });
 }
 
 const delay = 3000; // Should be 15 min or so
 const url = "https://tools.vaadin.com/";
 const gatherStats = function() {
-  const elements = getUsedVaadinElements();
-  if (elements.length == 0) {
-    // No Vaadin elements in use, ignore
+  var versions = [];
+  getUsedVaadinElements(versions);
+  getFrameworks(versions);
+  if (versions.length == 0) {
+    // No Vaadin products in use, ignore
     return;
   }
-  console.log("Sending "+JSON.stringify(elements)+" to " + url);
+  console.log("Sending " + JSON.stringify(versions) + " to " + url);
 }
 
 const delayedGatherStats = function() {
