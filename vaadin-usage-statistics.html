@@ -92,7 +92,7 @@ const getFrameworks = function(versions) {
   });
 }
 
-const delay = 5000; // Should be 1 minute or so
+const delay = 10000; // Should be 1 minute or so
 const url = "https://tools.vaadin.com/";
 const gatherStats = function() {
   var versions = [];
@@ -105,17 +105,8 @@ const gatherStats = function() {
   console.log("Sending " + JSON.stringify(versions) + " to " + url);
 }
 
-const delayedGatherStats = function() {
-  setTimeout(() => {
-    gatherStats();
-  }, delay);
-
-}
-
-if (HTMLImports.ready) {
-  delayedGatherStats();
-} else {
-  HTMLImports.whenReady(delayedGatherStats);
-}
+setTimeout(() => {
+  gatherStats();
+}, delay);
 
 </script>
