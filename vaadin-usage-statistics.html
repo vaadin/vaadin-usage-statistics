@@ -1,6 +1,15 @@
 <link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
 
 <script>
+
+const reportingInterval = 10000; // 1000*60*60*24;
+const now = new Date().getTime();
+const firstPingKey = "vaadin.statistics.firstping";
+const lastPingKey = "vaadin.statistics.lastping";
+const statsStorageKey = "vaadin.statistics.basket";
+const gatherDelay = 5000; // Delay between loading this file and gathering stats. Should be 1 minute or so
+const url = "https://license-server-stg.int.vaadin.com:8443/mau/";
+
 const frameworkVersionDetectors = {
   'Flow': function() {
     if (window.vaadin && window.vaadin.clients) {
@@ -93,10 +102,20 @@ const getFrameworks = function(versions) {
 };
 
 const gatherStats = function() {
-  var versions = [];
-  getUsedVaadinElements(versions);
-  getFrameworks(versions);
-  return versions;
+  const storedStatsString = localStorage.getItem(statsStorageKey);
+  const storedStats = JSON.parse(storedStatsString ? storedStatsString : "{}");
+
+  var gatheredStats = [];
+  getUsedVaadinElements(gatheredStats);
+  getFrameworks(gatheredStats);
+
+  Object.assign(gatheredStats, storedStats);
+  localStorage.setItem(statsStorageKey, JSON.stringify(gatheredStats));
+  if (JSON.stringify(gatheredStats) != JSON.stringify(storedStats)) {
+    debug("New stats: " + JSON.stringify(storedStats));
+  }
+
+  return gatheredStats;
 };
 
 const sendData = function(url, data) {
@@ -122,30 +141,21 @@ const debug = function(msg) {
   console.log("vaadin-usage-statistics: "+msg);
 };
 
-window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
-window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
-  const pingInterval = 5000; // 1000*60*60*24;
-  const now = new Date().getTime();
-  const firstPingKey = "vaadin.statistics.firstping";
-  const lastPingKey = "vaadin.statistics.lastping";
-  const gatherDelay = 5000; // Delay between loading this file and gathering stats. Should be 1 minute or so
-  const url = "https://license-server-stg.int.vaadin.com:8443/mau/";
-
+const triggerSending = function() {
   setTimeout(() => {
-    const firstPing = localStorage.getItem(firstPingKey);
+    const firstPing = Number(localStorage.getItem(firstPingKey));
     const lastPing = Number(localStorage.getItem(lastPingKey));
 
     if (!firstPing) {
       // Use a grace period to avoid interfering with tests, incognito mode etc
       localStorage.setItem(firstPingKey, now);
       localStorage.setItem(lastPingKey, now);
-      debug("First invocation. The first ping will not take place until " + pingInterval + "ms has passed");
+      debug("First invocation. The first ping will not take place until " + reportingInterval + "ms has passed");
       return;
     }
 
-    if (now < (lastPing + pingInterval) ) {
-      // Pinged recently
-      debug("Pinged recently. The next ping will not take place until " + (pingInterval-(now-lastPing)) + "ms has passed");
+    if (now < (lastPing + reportingInterval) ) {
+      // debug("Pinged recently. The next ping will not take place until " + (reportingInterval-(now-lastPing)) + "ms has passed");
       return;
     }
 
@@ -158,8 +168,14 @@ window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
     data["versions"] = versions;
     data["firstPing"] = firstPing;
     localStorage.setItem(lastPingKey, new Date().getTime());
+    localStorage.removeItem(statsStorageKey);
     sendData(url, data);
   }, gatherDelay);
-  debug("Checking in "+gatherDelay+"ms");
+}
+
+window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
+window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
+  gatherStats();
+  triggerSending();
 };
 </script>
