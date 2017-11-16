@@ -81,20 +81,20 @@ const frameworkVersionDetectors = {
   }
 };
 // Wait until the application has been running for a while to see which elements are used
-const getUsedVaadinElements = function(versions) {
+const getUsedVaadinElements = function(elements) {
   const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
   elementClasses.forEach(cls => {
     const version = cls.version ? cls.version : "0.0.0";
-    versions.push({element: cls.is, version: version});
+    elements[cls.is]=version;
   });
 }
-const getFrameworks = function(versions) {
+const getFrameworks = function(frameworks) {
   Object.keys(frameworkVersionDetectors).forEach(framework => {
     const detector = frameworkVersionDetectors[framework];
     try {
       const version = detector();
       if (version) {
-        versions.push({framework: framework, version: version});
+        frameworks[framework] = version;
       }
     } catch (e) {
     }
@@ -105,14 +105,15 @@ const gatherStats = function() {
   const storedStatsString = localStorage.getItem(statsStorageKey);
   const storedStats = JSON.parse(storedStatsString ? storedStatsString : "{}");
 
-  var gatheredStats = [];
-  getUsedVaadinElements(gatheredStats);
-  getFrameworks(gatheredStats);
+  var gatheredStats = {elements: {}, frameworks: {}};
+  getUsedVaadinElements(gatheredStats.elements);
+  getFrameworks(gatheredStats.frameworks);
 
-  Object.assign(gatheredStats, storedStats);
+  Object.assign(gatheredStats.elements, storedStats.elements);
+  Object.assign(gatheredStats.frameworks, storedStats.frameworks);
   localStorage.setItem(statsStorageKey, JSON.stringify(gatheredStats));
-  if (JSON.stringify(gatheredStats) != JSON.stringify(storedStats)) {
-    debug("New stats: " + JSON.stringify(storedStats));
+  if (JSON.stringify(gatheredStats) != JSON.stringify(storedStats) && Object.keys(gatheredStats).length > 0) {
+    debug("New stats: " + JSON.stringify(gatheredStats));
   }
 
   return gatheredStats;
@@ -160,15 +161,18 @@ const triggerSending = function() {
     }
 
     const versions = gatherStats();
-    if (versions.length == 0) {
+    const nrElements = Object.keys(versions.elements).length;
+    const nrFrameworks = Object.keys(versions.frameworks).length;
+
+    localStorage.setItem(lastPingKey, new Date().getTime());
+    localStorage.removeItem(statsStorageKey);
+    if ((nrElements + nrFrameworks) == 0) {
       // No relevant products in use, ignore
       return;
     }
-    var data = {}
-    data["versions"] = versions;
+
+    var data = versions;
     data["firstPing"] = firstPing;
-    localStorage.setItem(lastPingKey, new Date().getTime());
-    localStorage.removeItem(statsStorageKey);
     sendData(url, data);
   }, gatherDelay);
 }
