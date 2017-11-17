@@ -125,7 +125,7 @@ const sendData = function(url, data) {
   req.withCredentials = true;
   req.addEventListener("readystatechange", function() {
     if(req.readyState === XMLHttpRequest.DONE && req.status === 200) {
-      debug("Response:\n\n" + req.responseText);
+      debug("Response: " + req.responseText);
     }
   });
   req.addEventListener("error", function() {
@@ -139,7 +139,7 @@ const sendData = function(url, data) {
 }
 
 const debug = function(msg) {
-  console.log("vaadin-usage-statistics: "+msg);
+  //console.log("vaadin-usage-statistics: "+msg);
 };
 
 const triggerSending = function() {
