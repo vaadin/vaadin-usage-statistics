@@ -2,13 +2,13 @@
 
 <script>
 
-const reportingInterval = 10000; // 1000*60*60*24;
+const reportingInterval = 1000*60*60*24;
 const now = new Date().getTime();
 const firstPingKey = "vaadin.statistics.firstping";
 const lastPingKey = "vaadin.statistics.lastping";
 const statsStorageKey = "vaadin.statistics.basket";
-const gatherDelay = 5000; // Delay between loading this file and gathering stats. Should be 1 minute or so
-const url = "https://artur.app.fi/usage-stats/submit"
+const gatherDelay = 10000; // Delay between loading this file and gathering stats
+const url = "https://tools.vaadin.com/usage-stats/submit"
 
 const frameworkVersionDetectors = {
   'Flow': function() {
