@@ -1,11 +1,18 @@
 <link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
 
+<!-- Gathers usage statistics for Vaadin Elements when application is run in development mode (on localhost) -->
+<!-- No statistics will be gathered when running in production -->
+<!-- -->
+<!-- To opt out from statistics, run the following command in the browser console when your app is open: -->
+<!-- localStorage.setItem("vaadin.statistics.optout","true"); -->
+
 <script>
 
 const reportingInterval = 1000*60*60*24;
 const now = new Date().getTime();
 const firstPingKey = "vaadin.statistics.firstping";
 const lastPingKey = "vaadin.statistics.lastping";
+const optOutKey = "vaadin.statistics.optout";
 const statsStorageKey = "vaadin.statistics.basket";
 const gatherDelay = 10000; // Delay between loading this file and gathering stats
 const url = "https://tools.vaadin.com/usage-stats/submit"
@@ -179,6 +186,9 @@ const triggerSending = function() {
 
 window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
 window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
+  if (localStorage.getItem(optOutKey)) {
+    return;
+  }
   gatherStats();
   triggerSending();
 };
