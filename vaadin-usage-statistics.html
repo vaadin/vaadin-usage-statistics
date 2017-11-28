@@ -8,6 +8,7 @@
 
 <script>
 
+const usageStatisticsVersion = "0.0.1";
 const reportingInterval = 1000*60*60*24;
 const now = new Date().getTime();
 const firstPingKey = "vaadin.statistics.firstping";
@@ -180,6 +181,7 @@ const triggerSending = function() {
 
     var data = versions;
     data["firstPing"] = firstPing;
+    data["usageStatisticsVersion"] = usageStatsVersion;
     sendData(url, data);
   }, gatherDelay);
 }
