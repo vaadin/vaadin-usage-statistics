@@ -1,12 +1,2 @@
-# \<vaadin-usage-statistics\>
-
-An element for gathering usage statistics for all `<vaadin-*>` web
-components.
-
-## Viewing Your Element
-
-```
-$ bower install
-$ polymer serve --open
-```
-
+This is the opt-out version of vaadin-usage-statistics.
+All files are empty.
