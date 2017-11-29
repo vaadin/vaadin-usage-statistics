@@ -173,7 +173,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     req.open("POST", url);
     req.setRequestHeader("Content-Type", "application/json");
 
-    req.send(JSON.stringify(data));
+    req.send(data);
 
   }
 
@@ -191,7 +191,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       }
 
       if (now < (lastPing + reportingInterval) ) {
-        // debug("Pinged recently. The next ping will not take place until " + (reportingInterval-(now-lastPing)) + "ms has passed");
+        debug("Pinged recently. The next ping will not take place until " + (reportingInterval-(now-lastPing)) + "ms has passed");
         return;
       }
 
@@ -209,7 +209,8 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       var data = versions;
       data["firstPing"] = firstPing;
       data["usageStatisticsVersion"] = usageStatisticsVersion;
-      sendData(url, data);
+      const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
+      sendData(url, info+JSON.stringify(data));
     }, gatherDelay);
   }
 
