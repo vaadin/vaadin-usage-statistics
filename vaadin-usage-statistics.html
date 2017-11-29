@@ -110,10 +110,12 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
   }
   const getUsedVaadinThemes = function(themes) {
     if (window.ShadyCSS) {
-      const valoBaseColor =  window.ShadyCSS.getComputedStyleValue(document.body, '--valo-base-color');
-      if (valoBaseColor != "") {
-        themes["valo"] = {"version": "0"};
-      }
+      ["--valo-base-color","--valo-space-m"].forEach(property => {
+        const value =  window.ShadyCSS.getComputedStyleValue(document.body, property);
+        if (value != "") {
+          themes["valo"] = {"version": "0"};
+        }
+      });
     }
   }
   const getFrameworks = function(frameworks) {
