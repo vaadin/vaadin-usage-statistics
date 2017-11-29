@@ -102,7 +102,7 @@
     const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
     elementClasses.forEach(cls => {
       const version = cls.version ? cls.version : "0.0.0";
-      elements[cls.is]=version;
+      elements[cls.is] = {"version": version };
     });
   }
   const getFrameworks = function(frameworks) {
@@ -111,7 +111,7 @@
       try {
         const version = detector();
         if (version) {
-          frameworks[framework] = version;
+          frameworks[framework] = {"version" : version };
         }
       } catch (e) {
       }
@@ -119,21 +119,40 @@
   };
 
   const gatherStats = function() {
-    const storedStatsString = localStorage.getItem(statsStorageKey);
-    const storedStats = JSON.parse(storedStatsString ? storedStatsString : "{}");
+    const localStorageStatsString = localStorage.getItem(statsStorageKey);
+    const localStorageStats = JSON.parse(localStorageStatsString ? localStorageStatsString : '{"elements": {}, "frameworks": {}}');
+    var previousStats = JSON.stringify(localStorageStats);
 
     var gatheredStats = {elements: {}, frameworks: {}};
     getUsedVaadinElements(gatheredStats.elements);
     getFrameworks(gatheredStats.frameworks);
 
-    Object.assign(gatheredStats.elements, storedStats.elements);
-    Object.assign(gatheredStats.frameworks, storedStats.frameworks);
-    localStorage.setItem(statsStorageKey, JSON.stringify(gatheredStats));
-    if (JSON.stringify(gatheredStats) != JSON.stringify(storedStats) && Object.keys(gatheredStats).length > 0) {
-      debug("New stats: " + JSON.stringify(gatheredStats));
+    var elementKeys = Object.keys(gatheredStats.elements);
+    elementKeys.forEach(key => {
+      if (!localStorageStats.elements[key]) {
+        localStorageStats.elements[key] = {"firstUsed": now};
+      }
+      // Discards any previously logged version numebr
+      localStorageStats.elements[key].version = gatheredStats.elements[key].version;
+      localStorageStats.elements[key].lastUsed = now;
+    });
+    var frameworkKeys = Object.keys(gatheredStats.frameworks);
+    frameworkKeys.forEach(key => {
+      if (!localStorageStats.frameworks[key]) {
+        localStorageStats.frameworks[key] = {"firstUsed": now};
+      }
+      // Discards any previously logged version numebr
+      localStorageStats.frameworks[key].version = gatheredStats.frameworks[key].version;
+      localStorageStats.frameworks[key].lastUsed = now;
+    });
+
+    const newStats = JSON.stringify(localStorageStats);
+    localStorage.setItem(statsStorageKey, newStats);
+    if (newStats != previousStats && Object.keys(localStorageStats).length > 0) {
+      debug("New stats: " + newStats);
     }
 
-    return gatheredStats;
+    return localStorageStats;
   };
 
   const sendData = function(url, data) {
