@@ -1,8 +1,8 @@
 # Gathers usage statistics for components used during application development
 
-To be able to understand and focus development more efficiently, Vaadin gathers product usage statistics from developers. *No statistics or other data is collected from the users of the applications based on any Vaadin technologies.*
+To be able to understand and focus development more efficiently, Vaadin gathers product usage statistics from developers. **No statistics or other data is collected from the users of the applications based on any Vaadin technologies.**
 
-Periodical random sampling is used to ensure only statistical data is collected. *We do not track individual users.*
+Periodical random sampling is used to ensure only statistical data is collected. **We do not track individual users.**
 
 Statistics are only gathered when the application is in [development mode](https://github.com/vaadin/vaadin-development-mode-detector). Statistics are automatically disabled and the statistics gathering code is automatically excluded from production builds.
 
