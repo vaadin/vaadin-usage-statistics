@@ -1,10 +1,13 @@
-<link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
+<!--
 
-<!-- Gathers usage statistics for Vaadin Elements when application is run in development mode (on localhost) -->
-<!-- No statistics will be gathered when running in production -->
-<!-- -->
-<!-- To opt out from statistics, run the following command in the browser console when your app is open: -->
-<!-- localStorage.setItem("vaadin.statistics.optout","true"); -->
+This script gathers usage statistics from the application running in development mode.
+
+Statistics gathering is automatically disabled and excluded from production builds.
+
+For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.
+
+-->
+<link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
 
 <script>
 {
