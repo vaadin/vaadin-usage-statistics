@@ -100,13 +100,21 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       }
     }
   };
-  // Wait until the application has been running for a while to see which elements are used
+
   const getUsedVaadinElements = function(elements) {
     const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
     elementClasses.forEach(cls => {
       const version = cls.version ? cls.version : "0.0.0";
       elements[cls.is] = {"version": version };
     });
+  }
+  const getUsedVaadinThemes = function(themes) {
+    if (window.ShadyCSS) {
+      const valoBaseColor =  window.ShadyCSS.getComputedStyleValue(document.body, '--valo-base-color');
+      if (valoBaseColor != "") {
+        themes["valo"] = {"version": "0"};
+      }
+    }
   }
   const getFrameworks = function(frameworks) {
     Object.keys(frameworkVersionDetectors).forEach(framework => {
@@ -123,30 +131,33 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
 
   const gatherStats = function() {
     const localStorageStatsString = localStorage.getItem(statsStorageKey);
-    const localStorageStats = JSON.parse(localStorageStatsString ? localStorageStatsString : '{"elements": {}, "frameworks": {}}');
+    const localStorageStats = JSON.parse(localStorageStatsString ? localStorageStatsString : '{}');
+    var gatheredStats = {};
+    const types = ["elements","frameworks","themes"];
+
+    types.forEach( type => {
+      gatheredStats[type] = {};
+      if (!localStorageStats[type]) {
+        localStorageStats[type] = {};
+      }
+    });
+
     var previousStats = JSON.stringify(localStorageStats);
 
-    var gatheredStats = {elements: {}, frameworks: {}};
     getUsedVaadinElements(gatheredStats.elements);
     getFrameworks(gatheredStats.frameworks);
+    getUsedVaadinThemes(gatheredStats.themes);
 
-    var elementKeys = Object.keys(gatheredStats.elements);
-    elementKeys.forEach(key => {
-      if (!localStorageStats.elements[key]) {
-        localStorageStats.elements[key] = {"firstUsed": now};
-      }
-      // Discards any previously logged version numebr
-      localStorageStats.elements[key].version = gatheredStats.elements[key].version;
-      localStorageStats.elements[key].lastUsed = now;
-    });
-    var frameworkKeys = Object.keys(gatheredStats.frameworks);
-    frameworkKeys.forEach(key => {
-      if (!localStorageStats.frameworks[key]) {
-        localStorageStats.frameworks[key] = {"firstUsed": now};
-      }
-      // Discards any previously logged version numebr
-      localStorageStats.frameworks[key].version = gatheredStats.frameworks[key].version;
-      localStorageStats.frameworks[key].lastUsed = now;
+    types.forEach( type => {
+      const keys = Object.keys(gatheredStats[type]);
+      keys.forEach(key => {
+        if (!localStorageStats[type][key]) {
+          localStorageStats[type][key] = {"firstUsed": now};
+        }
+        // Discards any previously logged version numebr
+        localStorageStats[type][key].version = gatheredStats[type][key].version;
+        localStorageStats[type][key].lastUsed = now;
+      });
     });
 
     const newStats = JSON.stringify(localStorageStats);
