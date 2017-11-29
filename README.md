@@ -1,12 +1,24 @@
-# \<vaadin-usage-statistics\>
+# Gathers usage statistics for components used during application development
 
-An element for gathering usage statistics for all `<vaadin-*>` web
-components.
+To be able to understand and focus development more efficiently, Vaadin gathers product usage statistics from developers. *No statistics or other data is collected from the users of the applications based on any Vaadin technologies.*
 
-## Viewing Your Element
+Periodical random sampling is used to ensure only statistical data is collected. *We do not track individual users.*
 
+Statistics are only gathered when the application is in [development mode](https://github.com/vaadin/vaadin-development-mode-detector). Statistics are automatically disabled and the statistics gathering code is automatically excluded from production builds.
+
+## Collected data
+* Vaadin products used in the application, including version numbers
+* [Frameworks](vaadin-usage-statistics.html#L21) used in the application, including version numbers
+* The first and last time a product was used
+* Whether you are a registered vaadin.com user or not (true/false)
+* Browser user-agent string
+
+
+## Opting out
+To opt-out from statistics, install the no-op version of the `vaadin-usage-statistics` package using
 ```
-$ bower install
-$ polymer serve --open
+bower install --save vaadin/vaadin-usage-statistics#optout
 ```
+You can verify this by checking that `vaadin-usage-statistics.html` is empty.
 
+If you have any questions on the use of the statistics, please contact statistics@vaadin.com.
