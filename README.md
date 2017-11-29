@@ -10,6 +10,7 @@ Statistics are only gathered when the application is in [development mode](https
 * Vaadin products used in the application, including version numbers
 * [Frameworks](vaadin-usage-statistics.html#L21) used in the application, including version numbers
 * The first and last time a product was used
+* The first time statistics were gathered
 * Whether you are a registered vaadin.com user or not (true/false)
 * Browser user-agent string
 
