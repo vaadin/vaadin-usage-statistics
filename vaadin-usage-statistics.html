@@ -8,6 +8,15 @@
 
 <script>
 {
+  const isDebug = function() {
+    return localStorage.getItem("vaadin.statistics.debug");
+  }
+  const debug = function(msg) {
+    if (isDebug()) {
+      console.log("vaadin-usage-statistics: "+msg);
+    }
+  };
+
   const usageStatisticsVersion = "0.0.1";
   const reportingInterval = 1000*60*60*24;
   const now = new Date().getTime();
@@ -145,10 +154,6 @@
     req.send(JSON.stringify(data));
 
   }
-
-  const debug = function(msg) {
-    //console.log("vaadin-usage-statistics: "+msg);
-  };
 
   const triggerSending = function() {
     setTimeout(() => {
