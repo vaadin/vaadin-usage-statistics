@@ -31,63 +31,73 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
   }
 
   const usageStatisticsVersion = "0.0.1";
-  const now = new Date().getTime();
-  const firstPingKey = "vaadin.statistics.firstping";
-  const lastPingKey = "vaadin.statistics.lastping";
-  const optOutKey = "vaadin.statistics.optout";
-  const gatherDelay = 10000; // Delay between loading this file and gathering stats
+  class UsageStatistics {
+    constructor() {
+      this.now = new Date().getTime();
+      this.firstUseKey = "vaadin.statistics.firstuse";
+      this.lastPingKey = "vaadin.statistics.lastping";
+      this.optOutKey = "vaadin.statistics.optout";
+      this.gatherDelay = 10000; // Delay between loading this file and gathering stats
 
-  const initialDelay = 24*60*60;
-  const reportingInterval = 60*60*24;
+      this.initialDelay = 24*60*60;
+      this.reportingInterval = 60*60*24;
 
-  const logger = new StatisticsLogger("statistics");
-  const storage = new StatisticsStorage("vaadin.statistics.basket");
-  const gatherer = new StatisticsGatherer(logger);
-  const sender = new StatisticsSender("https://tools.vaadin.com/usage-stats/submit", logger);
+      this.logger = new StatisticsLogger("statistics");
+      this.storage = new StatisticsStorage("vaadin.statistics.basket");
+      this.gatherer = new StatisticsGatherer(this.logger);
+      this.sender = new StatisticsSender("https://tools.vaadin.com/usage-stats/submit", this.logger);
 
-  const triggerSending = function() {
-    setTimeout(() => {
-      const firstPing = Number(localStorage.getItem(firstPingKey));
-      const lastPing = Number(localStorage.getItem(lastPingKey));
+    }
+    maybeGatherAndSend() {
+      if (localStorage.getItem(this.optOutKey)) {
+        return;
+      }
+      this.gatherer.gather(this.storage);
+      setTimeout(() => {
+          this.maybeSend();
+      }, this.gatherDelay);
+    }
 
-      if (!firstPing) {
+    maybeSend() {
+      var firstUse = Number(localStorage.getItem(this.firstUseKey));
+      const lastPing = Number(localStorage.getItem(this.lastPingKey));
+
+      if (!firstUse) {
         // Use a grace period to avoid interfering with tests, incognito mode etc
-        localStorage.setItem(firstPingKey, now);
-        localStorage.setItem(lastPingKey, now);
-        logger.debug("No statistics will be sent until the initial delay of " + initialDelay + "s has passed");
+        firstUse = this.now;
+        localStorage.setItem(this.firstUseKey, firstUse);
+      }
+
+      if (this.now < (firstUse + this.initialDelay)) {
+        this.logger.debug("No statistics will be sent until the initial delay of " + this.initialDelay + "s has passed");
+        return;
+      }
+      if (this.now < (lastPing + this.reportingInterval) ) {
+        this.logger.debug("Statistics will not be sent until " + (this.reportingInterval-(this.now-lastPing)/1000) + "s has passed");
         return;
       }
 
-      if (now < (lastPing + reportingInterval) ) {
-        logger.debug("Statistics will not be sent until " + (reportingInterval-(now-lastPing)/1000) + "s has passed");
-        return;
-      }
+      this.gatherer.gather(this.storage);
+      const hasStats = !this.storage.isEmpty();
 
-      gatherer.gather(storage);
-      const hasStats = !storage.isEmpty();
-
-      localStorage.setItem(lastPingKey, new Date().getTime());
-      storage.clear();
+      localStorage.setItem(this.lastPingKey, new Date().getTime());
+      this.storage.clear();
       if (!hasStats) {
-        logger.debug("No relevant products in use");
+        this.logger.debug("No relevant products in use");
         return;
       }
 
-      var data = storage.read();
-      data["firstPing"] = firstPing;
+      var data = this.storage.read();
+      data["firstUse"] = firstUse;
       data["usageStatisticsVersion"] = usageStatisticsVersion;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
-      sender.send(info+JSON.stringify(data));
-    }, gatherDelay);
+      this.sender.send(info+JSON.stringify(data));
+    }
   }
 
   window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
   window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
-    if (localStorage.getItem(optOutKey)) {
-      return;
-    }
-    gatherer.gather(storage);
-    triggerSending();
+    new UsageStatistics().maybeGatherAndSend();
   };
 }
 </script>
