@@ -97,8 +97,10 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       data["firstUse"] = firstUse;
       data["usageStatisticsVersion"] = usageStatisticsVersion;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
-      this.sender.send(info+JSON.stringify(data));
-      this.storage.clear();
+      this.sender.send(info+JSON.stringify(data), function() {
+        // Revert the 'month processed' flag
+        localStorage.setItem(this.monthProcessedKey, thisMonth-1);
+      });
     }
   }
 

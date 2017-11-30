@@ -5,23 +5,26 @@ class StatisticsSender {
     this.logger = logger;
   }
 
-  send(data) {
+  send(data, errorHandler) {
     const logger = this.logger;
     logger.debug("Sending data to " + this.url);
 
     var req = new XMLHttpRequest();
     req.withCredentials = true;
-    req.addEventListener("readystatechange", function() {
-      if(req.readyState === XMLHttpRequest.DONE && req.status === 200) {
-        logger.debug("Response: " + req.responseText);
-      }
+    req.addEventListener("load", function() {
+      // Stats sent, nothing more to do
+      logger.debug("Response: " + req.responseText);
     });
     req.addEventListener("error", function() {
       logger.debug("Send failed");
+      errorHandler();
+    });
+    req.addEventListener("abort", function() {
+      logger.debug("Send aborted");
+      errorHandler();
     });
     req.open("POST", this.url);
     req.setRequestHeader("Content-Type", "application/json");
-
     req.send(data);
   }
 }
