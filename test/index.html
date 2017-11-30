@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../vaadin-usage-statistics.html">
+</head>
+<body>
+  <awesome-element id="fixture"></awesome-element>
+  <script>
+
+  class DummyLogger extends StatisticsLogger {
+    _isDebug() {
+      return false;
+    }
+  }
+  class LoggingGatherer extends StatisticsGatherer {
+    constructor() {
+      super(new DummyLogger());
+      this.gatherCalled = 0;
+    }
+    gather() {
+      this.gatherCalled++;
+    }
+  }
+  class SendLoggingUsageStatistics extends UsageStatistics {
+    constructor() {
+      super();
+      this.sendCalled = 0;
+    }
+    send() {
+      this.sendCalled++;
+    }
+  }
+
+  suite('opt-out', function() {
+    setup(() => {
+      localStorage.clear();
+    });
+    test('opt-out-does-not-gather', function() {
+      const stats = new UsageStatistics();
+      localStorage.setItem(stats.optOutKey, "true");
+      stats.gather = new LoggingGatherer();
+      stats.maybeGatherAndSend();
+      assert.equal(stats.gather.gatherCalled, 0);
+    })
+  });
+  suite('first-use', function() {
+    setup(() => {
+      localStorage.clear();
+    });
+    test('first-use-set-properly', function() {
+      const stats = new UsageStatistics();
+      stats.maybeSend();
+      const firstUse = Number(localStorage.getItem(stats.firstUseKey));
+      const now = new Date().getTime();
+
+      // firstUse should be set to approximately "now"
+      assert.closeTo(firstUse, now, 2000);
+    });
+    test('nothing-sent-during-initial-delay', function() {
+      const stats = new SendLoggingUsageStatistics();
+      stats.maybeSend();
+      assert.equal(stats.sendCalled, 0);
+    });
+    test('stats-gathered-during-initial-delay', function() {
+      const stats = new UsageStatistics();
+      stats.gatherer = new LoggingGatherer();
+      stats.maybeGatherAndSend();
+      assert.isAtLeast(stats.gatherer.gatherCalled, 1);
+    });
+    test('might-send-after-initial-delay', function() {
+      var lotteryCalled = false;
+      class MockUsageStatistics extends UsageStatistics {
+        lottery() {
+          lotteryCalled = true;
+        }
+      }
+      const stats = new MockUsageStatistics();
+      const firstUse = new Date().getTime()-stats.initialDelay*1000-1;
+      localStorage.setItem(stats.firstUseKey, firstUse);
+      stats.maybeSend();
+      assert.isTrue(lotteryCalled);
+    });
+  });
+
+  suite('lottery', function() {
+    setup(() => {
+      localStorage.clear()
+    });
+    test('send-not-called-when-sampling-says-no', function() {
+      var lotteryCalled = false;
+
+      class MockStatistics extends UsageStatistics {
+        lottery() {
+          lotteryCalled = true;
+          return false;
+        }
+      }
+      const stats = new MockStatistics();
+      stats.initialDelay = 0;
+//      localStorage.setItem(stats.monthProcessedKey,0);
+
+       class MockSender extends StatisticsSender {
+         send(data) {
+           this.sendCalled = true;
+         }
+       }
+       stats.sender = new MockSender();
+       stats.maybeSend();
+
+       assert.isTrue(lotteryCalled);
+       assert.isUndefined(stats.sender.sendCalled);
+    });
+    test('send-called-when-sampling-says-yes', function() {
+      var lotteryCalled = false;
+      var sendCalled = false;
+
+      class MockStatistics extends UsageStatistics {
+        lottery() {
+          lotteryCalled = true;
+          return true;
+        }
+      }
+      const stats = new MockStatistics();
+      stats.initialDelay = 0;
+
+       class MockSender extends StatisticsSender {
+         send(data) {
+           sendCalled = true;
+         }
+       }
+       stats.sender = new MockSender();
+       stats.maybeSend();
+
+       assert.isTrue(lotteryCalled);
+       assert.isTrue(sendCalled);
+    });
+    test('5-percent-success-rate', function() {
+      var sendCalled = 0;
+
+      const stats = new UsageStatistics();
+      stats.initialDelay = 0;
+
+       class MockSender extends StatisticsSender {
+         send(data) {
+           sendCalled++;
+         }
+       }
+       stats.sender = new MockSender();
+       for (var i=0; i < 10000; i++) {
+         localStorage.setItem(stats.monthProcessedKey, 0);
+         stats.maybeSend();
+       }
+
+       // Configured to be 5%
+       assert.closeTo(sendCalled, 500, 100);
+    });
+  });
+  </script>
+</body>
+</html>

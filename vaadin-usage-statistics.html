@@ -13,7 +13,6 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
 <link rel="import" href="vaadin-usage-statistics-sender.html">
 
 <script>
-{
   class StatisticsLogger {
     constructor(id) {
       this.id = id;
@@ -89,12 +88,16 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
         return;
       }
 
+      this.send();
+    }
+
+    send() {
       // Ensure we have the latest data
       this.gatherer.gather(this.storage);
 
       // Read, send and clean up
       var data = this.storage.read();
-      data["firstUse"] = firstUse;
+      data["firstUse"] = Number(localStorage.getItem(this.firstUseKey));
       data["usageStatisticsVersion"] = usageStatisticsVersion;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
       this.sender.send(info+JSON.stringify(data), function() {
@@ -108,5 +111,5 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
   window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
     new UsageStatistics().maybeGatherAndSend();
   };
-}
+
 </script>
