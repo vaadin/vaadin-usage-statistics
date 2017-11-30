@@ -134,7 +134,7 @@ class StatisticsGatherer {
           storedStats[type][key] = {"firstUsed": this.now};
         }
         // Discards any previously logged version numebr
-        storedStats[type][key].version = storedStats[type][key].version;
+        storedStats[type][key].version = gatheredStats[type][key].version;
         storedStats[type][key].lastUsed = this.now;
       });
     });
