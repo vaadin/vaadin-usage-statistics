@@ -33,14 +33,13 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
   const usageStatisticsVersion = "0.0.1";
   class UsageStatistics {
     constructor() {
-      this.now = new Date().getTime();
+      this.now = new Date();
+      this.timeNow = this.now.getTime();
       this.firstUseKey = "vaadin.statistics.firstuse";
-      this.lastPingKey = "vaadin.statistics.lastping";
+      this.monthProcessedKey = "vaadin.statistics.monthProcessed"
       this.optOutKey = "vaadin.statistics.optout";
-      this.gatherDelay = 10000; // Delay between loading this file and gathering stats
-
+      this.gatherDelay = 10; // Delay between loading this file and gathering stats
       this.initialDelay = 24*60*60;
-      this.reportingInterval = 60*60*24;
 
       this.logger = new StatisticsLogger("statistics");
       this.storage = new StatisticsStorage("vaadin.statistics.basket");
@@ -55,43 +54,51 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       this.gatherer.gather(this.storage);
       setTimeout(() => {
           this.maybeSend();
-      }, this.gatherDelay);
+      }, this.gatherDelay*1000);
+    }
+
+    lottery() {
+      return Math.random() <= 0.05;
     }
 
     maybeSend() {
       var firstUse = Number(localStorage.getItem(this.firstUseKey));
-      const lastPing = Number(localStorage.getItem(this.lastPingKey));
+      const monthProcessed = Number(localStorage.getItem(this.monthProcessedKey));
 
       if (!firstUse) {
         // Use a grace period to avoid interfering with tests, incognito mode etc
-        firstUse = this.now;
+        firstUse = this.timeNow;
         localStorage.setItem(this.firstUseKey, firstUse);
       }
 
-      if (this.now < (firstUse + this.initialDelay)) {
+      if (this.timeNow < (firstUse + this.initialDelay*1000)) {
         this.logger.debug("No statistics will be sent until the initial delay of " + this.initialDelay + "s has passed");
         return;
       }
-      if (this.now < (lastPing + this.reportingInterval) ) {
-        this.logger.debug("Statistics will not be sent until " + (this.reportingInterval-(this.now-lastPing)/1000) + "s has passed");
+      const thisMonth = this.now.getYear()*12+this.now.getMonth();
+      if (thisMonth <= monthProcessed) {
+        this.logger.debug("This month has already been processed");
+        return;
+      }
+      localStorage.setItem(this.monthProcessedKey, thisMonth);
+      // Use random sampling
+      if (this.lottery()) {
+        this.logger.debug("Congratulations, we have a winner!");
+      } else {
+        this.logger.debug("Sorry, no stats from you this time");
         return;
       }
 
+      // Ensure we have the latest data
       this.gatherer.gather(this.storage);
-      const hasStats = !this.storage.isEmpty();
 
-      localStorage.setItem(this.lastPingKey, new Date().getTime());
-      this.storage.clear();
-      if (!hasStats) {
-        this.logger.debug("No relevant products in use");
-        return;
-      }
-
+      // Read, send and clean up
       var data = this.storage.read();
       data["firstUse"] = firstUse;
       data["usageStatisticsVersion"] = usageStatisticsVersion;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
       this.sender.send(info+JSON.stringify(data));
+      this.storage.clear();
     }
   }
 
