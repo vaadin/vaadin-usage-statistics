@@ -8,187 +8,42 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
 
 -->
 <link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
+<link rel="import" href="vaadin-usage-statistics-gatherer.html">
+<link rel="import" href="vaadin-usage-statistics-storage.html">
+<link rel="import" href="vaadin-usage-statistics-sender.html">
 
 <script>
 {
-  const isDebug = function() {
-    return localStorage.getItem("vaadin.statistics.debug");
-  }
-  const debug = function(msg) {
-    if (isDebug()) {
-      console.log("vaadin-usage-statistics: "+msg);
+  class StatisticsLogger {
+    constructor(id) {
+      this.id = id;
     }
-  };
+
+    _isDebug() {
+      return localStorage.getItem("vaadin."+this.id+".debug");
+    }
+
+    debug(msg) {
+      if (this._isDebug()) {
+        console.info(this.id+": "+msg);
+      }
+    }
+  }
 
   const usageStatisticsVersion = "0.0.1";
-  const reportingInterval = 1000*60*60*24;
   const now = new Date().getTime();
   const firstPingKey = "vaadin.statistics.firstping";
   const lastPingKey = "vaadin.statistics.lastping";
   const optOutKey = "vaadin.statistics.optout";
-  const statsStorageKey = "vaadin.statistics.basket";
   const gatherDelay = 10000; // Delay between loading this file and gathering stats
-  const url = "https://tools.vaadin.com/usage-stats/submit"
 
-  const frameworkVersionDetectors = {
-    'Flow': function() {
-      if (window.vaadin && window.vaadin.clients) {
-        var flowVersions = Object.values(window.vaadin.clients)
-        .filter(client => client.getVersionInfo)
-        .map(client => client.getVersionInfo().flow);
-        if (flowVersions.length > 0) {
-          return flowVersions[0];
-        }
-      }
-    },
-    'Vaadin Framework': function() {
-      if (window.vaadin && window.vaadin.clients) {
-        var frameworkVersions = Object.values(window.vaadin.clients)
-          .filter(client => client.getVersionInfo)
-          .map(client => client.getVersionInfo().vaadinVersion);
-        if (frameworkVersions.length > 0) {
-          return frameworkVersions[0];
-        }
-      }
-    },
-    'AngularJs': function() {
-      if (window.angular && window.angular.version && window.angular.version) {
-        return window.angular.version.full;
-      }
-    },
-    'Angular': function() {
-      if (window.ng) {
-        const tags = document.querySelectorAll("[ng-version]");
-        if (tags.length > 0) {
-          return tags[0].getAttribute("ng-version");
-        }
-        return "Unknown";
-      }
-    },
-    'Backbone.js': function() {
-      if (window.Backbone) {
-        return window.Backbone.VERSION;
-      }
-    },
-    'React': function() {
-      var reactSelector = '[data-reactroot], [data-reactid]';
-      if (!!document.querySelector(reactSelector)) {
-        // React does not publish the version by default
-        return "unknown";
-      }
-    },
-    'Ember': function() {
-      if (window.Em && window.Em.VERSION) {
-        return window.Em.VERSION;
-      } else if (window.Ember && window.Ember.VERSION) {
-        return window.Ember.VERSION;
-      }
-    },
-    'jQuery': function() {
-      if (typeof jQuery === 'function' && jQuery.prototype.jquery !== undefined) {
-        return jQuery.prototype.jquery;
-      }
-    },
-    'Polymer': function() {
-      if (window.Polymer && window.Polymer.version) {
-        return window.Polymer.version;
-      }
-    },
-    'Vue.js': function() {
-      if (window.Vue) {
-        return window.Vue.version;
-      }
-    }
-  };
+  const initialDelay = 24*60*60;
+  const reportingInterval = 60*60*24;
 
-  const getUsedVaadinElements = function(elements) {
-    const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
-    elementClasses.forEach(cls => {
-      const version = cls.version ? cls.version : "0.0.0";
-      elements[cls.is] = {"version": version };
-    });
-  }
-  const getUsedVaadinThemes = function(themes) {
-    if (window.ShadyCSS) {
-      ["--valo-base-color","--valo-space-m"].forEach(property => {
-        const value =  window.ShadyCSS.getComputedStyleValue(document.body, property);
-        if (value != "") {
-          themes["valo"] = {"version": "0"};
-        }
-      });
-    }
-  }
-  const getFrameworks = function(frameworks) {
-    Object.keys(frameworkVersionDetectors).forEach(framework => {
-      const detector = frameworkVersionDetectors[framework];
-      try {
-        const version = detector();
-        if (version) {
-          frameworks[framework] = {"version" : version };
-        }
-      } catch (e) {
-      }
-    });
-  };
-
-  const gatherStats = function() {
-    const localStorageStatsString = localStorage.getItem(statsStorageKey);
-    const localStorageStats = JSON.parse(localStorageStatsString ? localStorageStatsString : '{}');
-    var gatheredStats = {};
-    const types = ["elements","frameworks","themes"];
-
-    types.forEach( type => {
-      gatheredStats[type] = {};
-      if (!localStorageStats[type]) {
-        localStorageStats[type] = {};
-      }
-    });
-
-    var previousStats = JSON.stringify(localStorageStats);
-
-    getUsedVaadinElements(gatheredStats.elements);
-    getFrameworks(gatheredStats.frameworks);
-    getUsedVaadinThemes(gatheredStats.themes);
-
-    types.forEach( type => {
-      const keys = Object.keys(gatheredStats[type]);
-      keys.forEach(key => {
-        if (!localStorageStats[type][key]) {
-          localStorageStats[type][key] = {"firstUsed": now};
-        }
-        // Discards any previously logged version numebr
-        localStorageStats[type][key].version = gatheredStats[type][key].version;
-        localStorageStats[type][key].lastUsed = now;
-      });
-    });
-
-    const newStats = JSON.stringify(localStorageStats);
-    localStorage.setItem(statsStorageKey, newStats);
-    if (newStats != previousStats && Object.keys(localStorageStats).length > 0) {
-      debug("New stats: " + newStats);
-    }
-
-    return localStorageStats;
-  };
-
-  const sendData = function(url, data) {
-    debug("Sending data to " + url);
-    var req = new XMLHttpRequest();
-    req.withCredentials = true;
-    req.addEventListener("readystatechange", function() {
-      if(req.readyState === XMLHttpRequest.DONE && req.status === 200) {
-        debug("Response: " + req.responseText);
-      }
-    });
-    req.addEventListener("error", function() {
-      debug("Send failed :(");
-    });
-    req.open("POST", url);
-    req.setRequestHeader("Content-Type", "application/json");
-
-    req.send(data);
-
-  }
+  const logger = new StatisticsLogger("statistics");
+  const storage = new StatisticsStorage("vaadin.statistics.basket");
+  const gatherer = new StatisticsGatherer(logger);
+  const sender = new StatisticsSender("https://tools.vaadin.com/usage-stats/submit", logger);
 
   const triggerSending = function() {
     setTimeout(() => {
@@ -199,31 +54,30 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
         // Use a grace period to avoid interfering with tests, incognito mode etc
         localStorage.setItem(firstPingKey, now);
         localStorage.setItem(lastPingKey, now);
-        debug("First invocation. The first ping will not take place until " + reportingInterval + "ms has passed");
+        logger.debug("No statistics will be sent until the initial delay of " + initialDelay + "s has passed");
         return;
       }
 
       if (now < (lastPing + reportingInterval) ) {
-        debug("Pinged recently. The next ping will not take place until " + (reportingInterval-(now-lastPing)) + "ms has passed");
+        logger.debug("Statistics will not be sent until " + (reportingInterval-(now-lastPing)/1000) + "s has passed");
         return;
       }
 
-      const versions = gatherStats();
-      const nrElements = Object.keys(versions.elements).length;
-      const nrFrameworks = Object.keys(versions.frameworks).length;
+      gatherer.gather(storage);
+      const hasStats = !storage.isEmpty();
 
       localStorage.setItem(lastPingKey, new Date().getTime());
-      localStorage.removeItem(statsStorageKey);
-      if ((nrElements + nrFrameworks) == 0) {
-        // No relevant products in use, ignore
+      storage.clear();
+      if (!hasStats) {
+        logger.debug("No relevant products in use");
         return;
       }
 
-      var data = versions;
+      var data = storage.read();
       data["firstPing"] = firstPing;
       data["usageStatisticsVersion"] = usageStatisticsVersion;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
-      sendData(url, info+JSON.stringify(data));
+      sender.send(info+JSON.stringify(data));
     }, gatherDelay);
   }
 
@@ -232,7 +86,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     if (localStorage.getItem(optOutKey)) {
       return;
     }
-    gatherStats();
+    gatherer.gather(storage);
     triggerSending();
   };
 }

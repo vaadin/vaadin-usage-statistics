@@ -1,0 +1,151 @@
+<script>
+class StatisticsGatherer {
+  constructor(logger) {
+    this.now = new Date().getTime();
+    this.logger = logger;
+  }
+
+  frameworkVersionDetectors() {
+    return {
+      'Flow': function() {
+        if (window.vaadin && window.vaadin.clients) {
+          var flowVersions = Object.values(window.vaadin.clients)
+          .filter(client => client.getVersionInfo)
+          .map(client => client.getVersionInfo().flow);
+          if (flowVersions.length > 0) {
+            return flowVersions[0];
+          }
+        }
+      },
+      'Vaadin Framework': function() {
+        if (window.vaadin && window.vaadin.clients) {
+          var frameworkVersions = Object.values(window.vaadin.clients)
+          .filter(client => client.getVersionInfo)
+          .map(client => client.getVersionInfo().vaadinVersion);
+          if (frameworkVersions.length > 0) {
+            return frameworkVersions[0];
+          }
+        }
+      },
+      'AngularJs': function() {
+        if (window.angular && window.angular.version && window.angular.version) {
+          return window.angular.version.full;
+        }
+      },
+      'Angular': function() {
+        if (window.ng) {
+          const tags = document.querySelectorAll("[ng-version]");
+          if (tags.length > 0) {
+            return tags[0].getAttribute("ng-version");
+          }
+          return "Unknown";
+        }
+      },
+      'Backbone.js': function() {
+        if (window.Backbone) {
+          return window.Backbone.VERSION;
+        }
+      },
+      'React': function() {
+        var reactSelector = '[data-reactroot], [data-reactid]';
+        if (!!document.querySelector(reactSelector)) {
+          // React does not publish the version by default
+          return "unknown";
+        }
+      },
+      'Ember': function() {
+        if (window.Em && window.Em.VERSION) {
+          return window.Em.VERSION;
+        } else if (window.Ember && window.Ember.VERSION) {
+          return window.Ember.VERSION;
+        }
+      },
+      'jQuery': function() {
+        if (typeof jQuery === 'function' && jQuery.prototype.jquery !== undefined) {
+          return jQuery.prototype.jquery;
+        }
+      },
+      'Polymer': function() {
+        if (window.Polymer && window.Polymer.version) {
+          return window.Polymer.version;
+        }
+      },
+      'Vue.js': function() {
+        if (window.Vue) {
+          return window.Vue.version;
+        }
+      }
+    };
+  };
+
+  getUsedVaadinElements(elements) {
+    const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c=>c.is);
+    elementClasses.forEach(cls => {
+      const version = cls.version ? cls.version : "0.0.0";
+      elements[cls.is] = {"version": version};
+    });
+  }
+  getUsedVaadinThemes(themes) {
+    if (window.ShadyCSS) {
+      ["--valo-base-color","--valo-space-m"].forEach(property => {
+        const value =  window.ShadyCSS.getComputedStyleValue(document.body, property);
+        if (value != "") {
+          themes["valo"] = {"version": "0"};
+        }
+      });
+    }
+  }
+  getFrameworks(frameworks) {
+    const detectors = this.frameworkVersionDetectors();
+    Object.keys((detectors)).forEach(framework => {
+      const detector = detectors[framework];
+      try {
+        const version = detector();
+        if (version) {
+          frameworks[framework] = {"version" : version};
+        }
+      } catch (e) {
+      }
+    });
+  };
+
+  gather(storage) {
+    const storedStats = storage.read();
+    var gatheredStats = {};
+    const types = ["elements", "frameworks", "themes"];
+
+    types.forEach( type => {
+      gatheredStats[type] = {};
+      if (!storedStats[type]) {
+        storedStats[type] = {};
+      }
+    });
+
+    var previousStats = JSON.stringify(storedStats);
+
+    this.getUsedVaadinElements(gatheredStats.elements);
+    this.getFrameworks(gatheredStats.frameworks);
+    this.getUsedVaadinThemes(gatheredStats.themes);
+
+    types.forEach( type => {
+      const keys = Object.keys(gatheredStats[type]);
+      keys.forEach(key => {
+        if (!storedStats[type][key]) {
+          storedStats[type][key] = {"firstUsed": this.now};
+        }
+        // Discards any previously logged version numebr
+        storedStats[type][key].version = storedStats[type][key].version;
+        storedStats[type][key].lastUsed = this.now;
+      });
+    });
+
+    const newStats = JSON.stringify(storedStats);
+    storage.write(newStats);
+    if (newStats != previousStats && Object.keys(storedStats).length > 0) {
+      this.logger.debug("New stats: " + newStats);
+    }
+  };
+}
+
+
+</script>

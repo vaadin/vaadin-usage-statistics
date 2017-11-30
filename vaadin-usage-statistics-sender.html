@@ -1,0 +1,28 @@
+<script>
+class StatisticsSender {
+  constructor(url, logger) {
+    this.url = url;
+    this.logger = logger;
+  }
+
+  send(data) {
+    const logger = this.logger;
+    logger.debug("Sending data to " + this.url);
+
+    var req = new XMLHttpRequest();
+    req.withCredentials = true;
+    req.addEventListener("readystatechange", function() {
+      if(req.readyState === XMLHttpRequest.DONE && req.status === 200) {
+        logger.debug("Response: " + req.responseText);
+      }
+    });
+    req.addEventListener("error", function() {
+      logger.debug("Send failed");
+    });
+    req.open("POST", this.url);
+    req.setRequestHeader("Content-Type", "application/json");
+
+    req.send(data);
+  }
+}
+</script>
