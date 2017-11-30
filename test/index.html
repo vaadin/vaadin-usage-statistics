@@ -8,36 +8,39 @@
 </head>
 <body>
   <script>
-
-  class DummyLogger extends StatisticsLogger {
-    _isDebug() {
-      return false;
+  const defineClasses = function() {
+    window.DummyLogger = class DummyLogger extends StatisticsLogger {
+      _isDebug() {
+        return false;
+      }
     }
-  }
-  class LoggingGatherer extends StatisticsGatherer {
-    constructor() {
-      super(new DummyLogger());
-      this.gatherCalled = 0;
+    window.LoggingGatherer = class LoggingGatherer extends StatisticsGatherer {
+      constructor() {
+        super(new DummyLogger());
+        this.gatherCalled = 0;
+      }
+      gather() {
+        this.gatherCalled++;
+      }
     }
-    gather() {
-      this.gatherCalled++;
+    window.SendLoggingUsageStatistics = class SendLoggingUsageStatistics extends UsageStatistics {
+      constructor() {
+        super();
+        this.sendCalled = 0;
+      }
+      send() {
+        this.sendCalled++;
+      }
     }
-  }
-  class SendLoggingUsageStatistics extends UsageStatistics {
-    constructor() {
-      super();
-      this.sendCalled = 0;
+    window.CaptureSender = class CaptureSender extends StatisticsSender {
+      send(data) {
+        this.sentObject = JSON.parse(data.substring(data.indexOf("{")));
+      }
     }
-    send() {
-      this.sendCalled++;
-    }
-  }
-  class CaptureSender extends StatisticsSender {
-    send(data) {
-      this.sentObject = JSON.parse(data.substring(data.indexOf("{")));
-    }
-  }
-
+  };
+  window.addEventListener('WebComponentsReady', function() {
+    defineClasses();
+  });
 
   suite('opt-out', function() {
     setup(() => {
