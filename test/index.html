@@ -32,6 +32,12 @@
       this.sendCalled++;
     }
   }
+  class CaptureSender extends StatisticsSender {
+    send(data) {
+      this.sentObject = JSON.parse(data.substring(data.indexOf("{")));
+    }
+  }
+
 
   suite('opt-out', function() {
     setup(() => {
@@ -216,22 +222,35 @@
       localStorage.clear();
     });
     test('first-use-sent', function() {
-      new UsageStatistics().send();
-
-      assert.fail("not implemented");
-
+      localStorage.setItem(UsageStatistics.firstUseKey,"123");
+      const stats = new UsageStatistics();
+      stats.sender = new CaptureSender();
+      stats.send();
+      assert.equal(stats.sender.sentObject["firstUse"], "123");
     });
-    test('first-use-sent', function() {
-      new UsageStatistics();
-
-      assert.fail("not implemented");
-
+    test('usage-statistics-version-sent', function() {
+      const stats = new UsageStatistics();
+      stats.sender = new CaptureSender();
+      stats.send();
+      assert.equal(stats.sender.sentObject["usageStatisticsVersion"], UsageStatistics.version);
     });
-    test('send-not-called-when-offline', function() {
-      new UsageStatistics();
-
-      assert.fail("not implemented");
-
+    test('element-data-sent', function() {
+      window.Vaadin.BarElement = {is:"bar-element", version: "1.2.3"};
+      const stats = new UsageStatistics();
+      stats.sender = new CaptureSender();
+      stats.send();
+      assert.equal(stats.sender.sentObject.elements["bar-element"].version, "1.2.3");
+      assert.equal(stats.sender.sentObject.elements["bar-element"].firstUsed, stats.gatherer.now);
+      assert.equal(stats.sender.sentObject.elements["bar-element"].lastUsed, stats.gatherer.now);
+    });
+    test('framework-data-sent', function() {
+      window.angular = {version: {full: "1.2.3"}};
+      const stats = new UsageStatistics();
+      stats.sender = new CaptureSender();
+      stats.send();
+      assert.equal(stats.sender.sentObject.frameworks["AngularJs"].version, "1.2.3");
+      assert.equal(stats.sender.sentObject.frameworks["AngularJs"].firstUsed, stats.gatherer.now);
+      assert.equal(stats.sender.sentObject.frameworks["AngularJs"].lastUsed, stats.gatherer.now);
     });
   });
 

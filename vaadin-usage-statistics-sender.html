@@ -7,6 +7,12 @@ class StatisticsSender {
 
   send(data, errorHandler) {
     const logger = this.logger;
+
+    if (navigator.onLine === false) {
+      logger.debug("Offline, can't send");
+      errorHandler();
+      return;
+    }
     logger.debug("Sending data to " + this.url);
 
     var req = new XMLHttpRequest();

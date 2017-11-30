@@ -29,7 +29,6 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     }
   }
 
-  const usageStatisticsVersion = "0.0.1";
   class UsageStatistics {
     constructor() {
       this.now = new Date();
@@ -42,6 +41,9 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       this.gatherer = new StatisticsGatherer(this.logger);
       this.sender = new StatisticsSender("https://tools.vaadin.com/usage-stats/submit", this.logger);
 
+    }
+    static get version() {
+      return '0.0.1';
     }
     static get firstUseKey() {
       return 'vaadin.statistics.firstuse';
@@ -108,7 +110,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       // Read, send and clean up
       var data = this.storage.read();
       data["firstUse"] = Number(localStorage.getItem(UsageStatistics.firstUseKey));
-      data["usageStatisticsVersion"] = usageStatisticsVersion;
+      data["usageStatisticsVersion"] = UsageStatistics.version;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
       var self = this;
       this.sender.send(info+JSON.stringify(data), function() {
