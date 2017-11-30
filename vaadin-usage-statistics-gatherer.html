@@ -127,15 +127,16 @@ class StatisticsGatherer {
     this.getFrameworks(gatheredStats.frameworks);
     this.getUsedVaadinThemes(gatheredStats.themes);
 
+    const now = this.now;
     types.forEach( type => {
       const keys = Object.keys(gatheredStats[type]);
       keys.forEach(key => {
         if (!storedStats[type][key]) {
-          storedStats[type][key] = {"firstUsed": this.now};
+          storedStats[type][key] = {"firstUsed": now};
         }
         // Discards any previously logged version numebr
         storedStats[type][key].version = gatheredStats[type][key].version;
-        storedStats[type][key].lastUsed = this.now;
+        storedStats[type][key].lastUsed = now;
       });
     });
 

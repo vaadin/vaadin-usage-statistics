@@ -7,7 +7,6 @@
   <link rel="import" href="../vaadin-usage-statistics.html">
 </head>
 <body>
-  <awesome-element id="fixture"></awesome-element>
   <script>
 
   class DummyLogger extends StatisticsLogger {
@@ -40,11 +39,11 @@
     });
     test('opt-out-does-not-gather', function() {
       const stats = new UsageStatistics();
-      localStorage.setItem(stats.optOutKey, "true");
+      localStorage.setItem(UsageStatistics.optOutKey, "true");
       stats.gather = new LoggingGatherer();
       stats.maybeGatherAndSend();
       assert.equal(stats.gather.gatherCalled, 0);
-    })
+    });
   });
   suite('first-use', function() {
     setup(() => {
@@ -53,7 +52,7 @@
     test('first-use-set-properly', function() {
       const stats = new UsageStatistics();
       stats.maybeSend();
-      const firstUse = Number(localStorage.getItem(stats.firstUseKey));
+      const firstUse = Number(localStorage.getItem(UsageStatistics.firstUseKey));
       const now = new Date().getTime();
 
       // firstUse should be set to approximately "now"
@@ -79,7 +78,7 @@
       }
       const stats = new MockUsageStatistics();
       const firstUse = new Date().getTime()-stats.initialDelay*1000-1;
-      localStorage.setItem(stats.firstUseKey, firstUse);
+      localStorage.setItem(UsageStatistics.firstUseKey, firstUse);
       stats.maybeSend();
       assert.isTrue(lotteryCalled);
     });
@@ -100,7 +99,7 @@
       }
       const stats = new MockStatistics();
       stats.initialDelay = 0;
-//      localStorage.setItem(stats.monthProcessedKey,0);
+//      localStorage.setItem(UsageStatistics.monthProcessedKey,0);
 
        class MockSender extends StatisticsSender {
          send(data) {
@@ -150,7 +149,7 @@
        }
        stats.sender = new MockSender();
        for (var i=0; i < 10000; i++) {
-         localStorage.setItem(stats.monthProcessedKey, 0);
+         localStorage.setItem(UsageStatistics.monthProcessedKey, 0);
          stats.maybeSend();
        }
 
@@ -158,6 +157,84 @@
        assert.closeTo(sendCalled, 500, 100);
     });
   });
+  suite('gather', function() {
+    setup(() => {
+      localStorage.clear();
+      //localStorage.setItem()
+      window.Vaadin = {};
+    });
+    test('element-without-version-found', function() {
+      window.Vaadin.FooElement = {is:"foo-element"};
+      const stats = new UsageStatistics();
+      stats.gatherer.gather(stats.storage);
+      const data = stats.storage.read();
+
+      assert.equal(data.elements["foo-element"].version, "0.0.0");
+      assert.equal(data.elements["foo-element"].firstUsed, data.elements["foo-element"].lastUsed);
+      assert.closeTo(data.elements["foo-element"].firstUsed, new Date().getTime(), 10000);
+    });
+    test('element-with-version-found', function() {
+      window.Vaadin.BarElement = {is:"bar-element", version: "1.2.3"};
+      const stats = new UsageStatistics();
+      stats.gatherer.gather(stats.storage);
+      const data = stats.storage.read();
+
+      assert.equal(data.elements["bar-element"].version, "1.2.3");
+      assert.equal(data.elements["bar-element"].firstUsed, data.elements["bar-element"].lastUsed);
+      assert.closeTo(data.elements["bar-element"].firstUsed, new Date().getTime(), 10000);
+    });
+    test('element-first-used-not-updated', function() {
+      window.Vaadin.BarElement = {is:"bar-element", version: "1.2.3"};
+      const stats = new UsageStatistics();
+      stats.gatherer.gather(stats.storage);
+      const data = stats.storage.read();
+
+      const firstUsed = data.elements["bar-element"].firstUsed;
+      stats.gatherer.gather(stats.storage);
+      const newData = stats.storage.read();
+
+      assert.equal(newData.elements["bar-element"].firstUsed, firstUsed);
+    })
+    test('element-last-used-updated', function() {
+      window.Vaadin.BarElement = {is:"bar-element", version: "1.2.3"};
+      const stats = new UsageStatistics();
+      stats.gatherer.gather(stats.storage);
+      const data = stats.storage.read();
+
+      const initialLastUsed = data.elements["bar-element"].lastUsed;
+
+      // Ensure that the same timestamp is not used
+      stats.gatherer.now = stats.gatherer.now+10;
+      stats.gatherer.gather(stats.storage);
+      const newData = stats.storage.read();
+
+      assert.isAbove(newData.elements["bar-element"].lastUsed, initialLastUsed);
+    })
+  });
+  suite('sender', function() {
+    setup(() => {
+      localStorage.clear();
+    });
+    test('first-use-sent', function() {
+      new UsageStatistics().send();
+
+      assert.fail("not implemented");
+
+    });
+    test('first-use-sent', function() {
+      new UsageStatistics();
+
+      assert.fail("not implemented");
+
+    });
+    test('send-not-called-when-offline', function() {
+      new UsageStatistics();
+
+      assert.fail("not implemented");
+
+    });
+  });
+
   </script>
 </body>
 </html>

@@ -34,9 +34,6 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     constructor() {
       this.now = new Date();
       this.timeNow = this.now.getTime();
-      this.firstUseKey = "vaadin.statistics.firstuse";
-      this.monthProcessedKey = "vaadin.statistics.monthProcessed"
-      this.optOutKey = "vaadin.statistics.optout";
       this.gatherDelay = 10; // Delay between loading this file and gathering stats
       this.initialDelay = 24*60*60;
 
@@ -46,8 +43,18 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       this.sender = new StatisticsSender("https://tools.vaadin.com/usage-stats/submit", this.logger);
 
     }
+    static get firstUseKey() {
+      return 'vaadin.statistics.firstuse';
+    }
+    static get monthProcessedKey() {
+      return 'vaadin.statistics.monthProcessed';
+    }
+    static get optOutKey() {
+      return 'vaadin.statistics.optout';
+    }
+
     maybeGatherAndSend() {
-      if (localStorage.getItem(this.optOutKey)) {
+      if (localStorage.getItem(UsageStatistics.optOutKey)) {
         return;
       }
       this.gatherer.gather(this.storage);
@@ -60,26 +67,29 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       return Math.random() <= 0.05;
     }
 
+    currentMonth() {
+      return this.now.getYear()*12+this.now.getMonth();
+    }
+
     maybeSend() {
-      var firstUse = Number(localStorage.getItem(this.firstUseKey));
-      const monthProcessed = Number(localStorage.getItem(this.monthProcessedKey));
+      var firstUse = Number(localStorage.getItem(UsageStatistics.firstUseKey));
+      const monthProcessed = Number(localStorage.getItem(UsageStatistics.monthProcessedKey));
 
       if (!firstUse) {
         // Use a grace period to avoid interfering with tests, incognito mode etc
         firstUse = this.timeNow;
-        localStorage.setItem(this.firstUseKey, firstUse);
+        localStorage.setItem(UsageStatistics.firstUseKey, firstUse);
       }
 
       if (this.timeNow < (firstUse + this.initialDelay*1000)) {
         this.logger.debug("No statistics will be sent until the initial delay of " + this.initialDelay + "s has passed");
         return;
       }
-      const thisMonth = this.now.getYear()*12+this.now.getMonth();
-      if (thisMonth <= monthProcessed) {
+      if (this.currentMonth() <= monthProcessed) {
         this.logger.debug("This month has already been processed");
         return;
       }
-      localStorage.setItem(this.monthProcessedKey, thisMonth);
+      localStorage.setItem(UsageStatistics.monthProcessedKey, this.currentMonth());
       // Use random sampling
       if (this.lottery()) {
         this.logger.debug("Congratulations, we have a winner!");
@@ -97,12 +107,13 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
 
       // Read, send and clean up
       var data = this.storage.read();
-      data["firstUse"] = Number(localStorage.getItem(this.firstUseKey));
+      data["firstUse"] = Number(localStorage.getItem(UsageStatistics.firstUseKey));
       data["usageStatisticsVersion"] = usageStatisticsVersion;
       const info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
+      var self = this;
       this.sender.send(info+JSON.stringify(data), function() {
         // Revert the 'month processed' flag
-        localStorage.setItem(this.monthProcessedKey, thisMonth-1);
+        localStorage.setItem(UsageStatistics.monthProcessedKey, self.currentMonth()-1);
       });
     }
   }
