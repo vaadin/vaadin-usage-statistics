@@ -227,6 +227,16 @@
       assert.equal(data.frameworks["Flow"].version, "1.2.3");
       assert.equal(data.frameworks["Flow"].firstUsed, data.frameworks["Flow"].lastUsed);
       assert.closeTo(data.frameworks["Flow"].firstUsed, new Date().getTime(), 10000);
+    });
+    test('valo-detected', function() {
+      window.Vaadin = window.Vaadin || {};
+      window.Vaadin.Valo = {version: "2.0.0-alpha5"};
+      const stats = new UsageStatistics();
+      stats.gatherer.gather(stats.storage);
+      const data = stats.storage.read();
+      assert.equal(data.themes["Valo"].version, "2.0.0-alpha5");
+      assert.equal(data.themes["Valo"].firstUsed, data.themes["Valo"].lastUsed);
+      assert.closeTo(data.themes["Valo"].firstUsed, new Date().getTime(), 10000);
 
     });
 

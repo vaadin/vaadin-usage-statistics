@@ -87,6 +87,9 @@ class StatisticsGatherer {
     });
   }
   getUsedVaadinThemes(themes) {
+    if (window.Vaadin && window.Vaadin.Valo) {
+      themes["Valo"] = {version: window.Vaadin.Valo.version};
+    }
   }
   getFrameworks(frameworks) {
     const detectors = this.frameworkVersionDetectors();
