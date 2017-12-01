@@ -86,14 +86,6 @@ class StatisticsGatherer {
     });
   }
   getUsedVaadinThemes(themes) {
-    if (window.ShadyCSS) {
-      ["--valo-base-color","--valo-space-m"].forEach(property => {
-        const value =  window.ShadyCSS.getComputedStyleValue(document.body, property);
-        if (value != "") {
-          themes["valo"] = {"version": "0"};
-        }
-      });
-    }
   }
   getFrameworks(frameworks) {
     const detectors = this.frameworkVersionDetectors();
