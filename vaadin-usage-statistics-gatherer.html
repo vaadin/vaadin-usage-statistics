@@ -9,7 +9,8 @@ class StatisticsGatherer {
     return {
       'Flow': function() {
         if (window.vaadin && window.vaadin.clients) {
-          var flowVersions = Object.values(window.vaadin.clients)
+          var flowVersions = Object.keys(window.vaadin.clients)
+          .map(key => window.vaadin.clients[key])
           .filter(client => client.getVersionInfo)
           .map(client => client.getVersionInfo().flow);
           if (flowVersions.length > 0) {

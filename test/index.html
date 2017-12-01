@@ -157,13 +157,13 @@
          }
        }
        stats.sender = new MockSender();
-       for (var i=0; i < 10000; i++) {
+       for (var i=0; i < 5000; i++) {
          localStorage.setItem(UsageStatistics.monthProcessedKey, 0);
          stats.maybeSend();
        }
 
        // Configured to be 5%
-       assert.closeTo(sendCalled, 500, 100);
+       assert.closeTo(sendCalled, 250, 80);
     });
   });
   suite('gather', function() {
