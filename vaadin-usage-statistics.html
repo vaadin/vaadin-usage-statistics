@@ -7,7 +7,6 @@ Statistics gathering is automatically disabled and excluded from production buil
 For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.
 
 -->
-<link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
 <link rel="import" href="vaadin-usage-statistics-gatherer.html">
 <link rel="import" href="vaadin-usage-statistics-storage.html">
 <link rel="import" href="vaadin-usage-statistics-sender.html">
@@ -120,6 +119,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     }
   }
 
+  window.Vaadin = window.Vaadin || {};
   window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
   window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function() {
     new UsageStatistics().maybeGatherAndSend();
