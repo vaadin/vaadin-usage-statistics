@@ -1,7 +1,7 @@
 {
   "name": "vaadin-usage-statistics",
   "version": "1.0.0",
-  "description": "To be able to understand and focus development more efficiently, Vaadin gathers product usage statistics from developers. **No statistics or other data is collected from the users of the applications based on any Vaadin technologies.**",
+  "description": "Gathers usage statistics for components used during application development",
   "main": "index.js",
   "directories": {
     "test": "test"
