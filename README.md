@@ -12,6 +12,7 @@ Statistics are only gathered when the application is in [development mode](https
 * The first and last time a product was used
 * The first time statistics were gathered
 * Whether you are a registered vaadin.com user or not (true/false)
+* Whether you are a Vaadin Pro user or not (true/false)
 * Browser user-agent string
 
 
