@@ -136,7 +136,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
       types.forEach(type => {
         const keys = Object.keys(gatheredStats[type]);
         keys.forEach(key => {
-          if (!storedStats[type][key]) {
+          if (!storedStats[type][key] || typeof storedStats[type][key] != typeof {}) {
             storedStats[type][key] = { "firstUsed": now };
           }
           // Discards any previously logged version numebr
@@ -159,7 +159,11 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     }
     read() {
       const localStorageStatsString = localStorage.getItem(this.key);
-      return JSON.parse(localStorageStatsString ? localStorageStatsString : '{}');
+      try {
+        return JSON.parse(localStorageStatsString ? localStorageStatsString : '{}');
+      } catch (e) {
+        return {};
+      }
     }
     write(data) {
       localStorage.setItem(this.key, data);
@@ -326,7 +330,11 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
   window.Vaadin = window.Vaadin || {};
   window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
   window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function () {
-    new UsageStatistics().maybeGatherAndSend();
+    try {
+      new UsageStatistics().maybeGatherAndSend();
+    } catch (e) {
+      // Intentionally ignored as this is not a problem in the app being developed
+    }
   };
 
 </script>
