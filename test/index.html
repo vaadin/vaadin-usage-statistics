@@ -241,7 +241,27 @@
         assert.closeTo(data.themes["Valo"].firstUsed, new Date().getTime(), 10000);
 
       });
+      test('works with corrupted localstorage', function () {
+        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
+        const stats = new UsageStatistics();
+        stats.storage.write('{ "foo": "bar" }');
+        stats.gatherer.gather(stats.storage);
 
+        data = stats.storage.read();
+        assert.equal(data.elements["bar-element"].lastUsed, stats.now.getTime());
+        assert.equal(data.elements["bar-element"].version, "1.2.3");
+      });
+      test('works with corrupted element data in localstorage', function () {
+        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
+        const stats = new UsageStatistics();
+        stats.storage.write(JSON.stringify({ "elements": { "bar-element": "3.3.3" } }));
+        stats.gatherer.gather(stats.storage);
+
+        data = stats.storage.read();
+        assert.equal(data.elements["bar-element"].lastUsed, stats.now.getTime());
+        assert.equal(data.elements["bar-element"].version, "1.2.3");
+
+      });
     });
     suite('sender', function () {
       setup(() => {
