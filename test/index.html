@@ -221,7 +221,7 @@
         assert.isAbove(newData.elements["bar-element"].lastUsed, initialLastUsed);
       })
       test('flow-detected', function () {
-        window.vaadin = { clients: { foo: { getVersionInfo: function () { return { flow: "1.2.3" }; } } } };
+        window.Vaadin.Flow = { clients: { foo: { getVersionInfo: function () { return { flow: "1.2.3" }; } } } };
         const stats = new UsageStatistics();
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();

@@ -17,9 +17,9 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     frameworkVersionDetectors() {
       return {
         'Flow': function () {
-          if (window.vaadin && window.vaadin.clients) {
-            var flowVersions = Object.keys(window.vaadin.clients)
-              .map(key => window.vaadin.clients[key])
+          if (window.Vaadin && window.Vaadin.Flow && window.Vaadin.Flow.clients) {
+            var flowVersions = Object.keys(window.Vaadin.Flow.clients)
+              .map(key => window.Vaadin.Flow.clients[key])
               .filter(client => client.getVersionInfo)
               .map(client => client.getVersionInfo().flow);
             if (flowVersions.length > 0) {
