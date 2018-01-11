@@ -247,7 +247,7 @@
         stats.gatherer.gather(stats.storage);
 
         data = stats.storage.read();
-        assert.equal(data.elements["bar-element"].lastUsed, stats.now.getTime());
+        assert.equal(data.elements["bar-element"].lastUsed, stats.gatherer.now);
         assert.equal(data.elements["bar-element"].version, "1.2.3");
       });
       test('works with corrupted element data in localstorage', function () {
