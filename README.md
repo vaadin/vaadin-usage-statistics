@@ -14,7 +14,7 @@ Statistics are only gathered when the application is in [development mode](https
 * Whether you are a registered vaadin.com user or not (true/false)
 * Whether you are a Vaadin Pro user or not (true/false)
 * Browser user-agent string
-
+* The IP address the statistics is sent from
 
 ## Opting out
 To opt-out from statistics, install the no-op version of the `vaadin-usage-statistics` package using
