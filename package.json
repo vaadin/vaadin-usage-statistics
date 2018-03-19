@@ -1,5 +1,5 @@
 {
-  "name": "vaadin-usage-statistics",
+  "name": "@vaadin/vaadin-usage-statistics",
   "version": "1.0.1",
   "description": "Gathers usage statistics for components used during application development",
   "main": "index.js",
