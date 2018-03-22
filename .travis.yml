@@ -1,7 +1,7 @@
-sudo: false
+sudo: true
 dist: trusty
 language: node_js
-node_js: 8.1
+node_js: 8.9
 
 cache:
   directories:
@@ -9,13 +9,26 @@ cache:
 
 addons:
   firefox: latest
-  chrome: latest
+  chrome: stable
 
-install:
-  - npm install
-  - bower install
+env:
+  - POLYMER=polymer2
+  - POLYMER=polymer3
 
 script:
-  - xvfb-run -s '-screen 0 1024x768x24' wct --env saucelabs
-  
-
+  - if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" && "$TRAVIS_BRANCH" != quick/* ]]; then
+      if [[ "$POLYMER" = "polymer2" ]]; then
+        npm install;
+        bower install;
+        wct --env saucelabs;
+      fi;
+      if [[ "$POLYMER" = "polymer3" ]]; then
+        npm install -g bower json yarn web-component-tester;
+        (cd .. && git clone git://github.com/polymer/polymer-modulizer.git && cd polymer-modulizer && npm link);
+        json -I -f package.json -e 'this.devDependencies = {}';
+        bower i;
+        modulizer --out . --force;
+        yarn install --flat;
+        wct --npm --env saucelabs-p3;
+      fi;
+    fi
