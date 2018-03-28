@@ -23,4 +23,13 @@ bower install --save vaadin/vaadin-usage-statistics#optout
 ```
 You can verify this by checking that `vaadin-usage-statistics.html` is empty.
 
+If you are using Java, add to your pom.xml:
+```
+<dependency>
+  <groupId>org.webjars.bowergithub.vaadin</groupId>
+  <artifactId>vaadin-usage-statistics</artifactId>
+  <version>1.0.0-optout</version>
+</dependency>
+```
+
 If you have any questions on the use of the statistics, please contact statistics@vaadin.com.
