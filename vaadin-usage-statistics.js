@@ -287,7 +287,7 @@
 
     }
     static get version() {
-      return '1.0.1';
+      return '1.0.6-pre.2';
     }
     static get firstUseKey() {
       return 'vaadin.statistics.firstuse';
