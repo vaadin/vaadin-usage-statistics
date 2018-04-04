@@ -79,17 +79,63 @@
       };
     };
 
+    get knownVaadinElementNames() {
+      if (!this._knownVaadinElementNames) {
+        const names = [
+          'vaadin-button',
+          'vaadin-checkbox',
+          'vaadin-combo-box',
+          'vaadin-context-menu',
+          'vaadin-date-picker',
+          'vaadin-dialog',
+          'vaadin-dropdown-menu',
+          'vaadin-form-layout',
+          'vaadin-grid',
+          'vaadin-horizontal-layout',
+          'vaadin-icons',
+          'vaadin-item',
+          'vaadin-list-box',
+          'vaadin-notification',
+          'vaadin-password-field',
+          'vaadin-progress-bar',
+          'vaadin-radio-button',
+          'vaadin-split-layout',
+          'vaadin-tab',
+          'vaadin-tabs',
+          'vaadin-text-area',
+          'vaadin-text-field',
+          'vaadin-upload',
+          'vaadin-vertical-layout'
+        ];
+        this._knownVaadinElementNames = names;
+      }
+
+      return this._knownVaadinElementNames;
+    }
+    getUsedVaadinElementVersion(elementName) {
+      const klass = customElements.get(elementName);
+      if (klass) {
+        return klass.version || "0.0.0";
+      }
+    }
     getUsedVaadinElements(elements) {
-      const elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c => c.is);
-      elementClasses.forEach(cls => {
-        const version = cls.version ? cls.version : "0.0.0";
-        elements[cls.is] = { "version": version };
+      this.knownVaadinElementNames.forEach(elementName => {
+        const version = this.getUsedVaadinElementVersion(elementName);
+        if (version) {
+          elements[elementName] = {version};
+        }
       });
     }
     getUsedVaadinThemes(themes) {
-      if (window.Vaadin && window.Vaadin.Lumo) {
-        themes["Lumo"] = { version: window.Vaadin.Lumo.version };
-      }
+      [
+        'Lumo'
+      ].forEach(themeName => {
+        const elementName = `vaadin-${themeName.toLowerCase()}-styles`;
+        const version = this.getUsedVaadinElementVersion(elementName);
+        if (version) {
+          themes[themeName] = {version};
+        }
+      });
     }
     getFrameworks(frameworks) {
       const detectors = this.frameworkVersionDetectors();

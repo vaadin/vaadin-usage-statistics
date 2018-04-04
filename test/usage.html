@@ -179,9 +179,28 @@
         //localStorage.setItem()
         window.Vaadin = {};
       });
+      suiteSetup(() => {
+        class FooElement extends HTMLElement {}
+        customElements.define('foo-element', FooElement);
+
+        class BarElement extends HTMLElement {
+          static get version() {
+            return "1.2.3";
+          }
+        }
+        customElements.define('bar-element', BarElement);
+
+        class LumoStyles extends HTMLElement {
+          static get version() {
+            return "2.0.0-alpha5";
+          }
+        }
+        customElements.define('vaadin-lumo-styles', LumoStyles);
+      });
       test('element-without-version-found', function () {
-        window.Vaadin.FooElement = { is: "foo-element" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('foo-element');
+
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
 
@@ -190,8 +209,9 @@
         assert.closeTo(data.elements["foo-element"].firstUsed, new Date().getTime(), 10000);
       });
       test('element-with-version-found', function () {
-        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('bar-element');
+
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
 
@@ -200,8 +220,8 @@
         assert.closeTo(data.elements["bar-element"].firstUsed, new Date().getTime(), 10000);
       });
       test('element-first-used-not-updated', function () {
-        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('bar-element');
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
 
@@ -212,8 +232,8 @@
         assert.equal(newData.elements["bar-element"].firstUsed, firstUsed);
       })
       test('element-last-used-updated', function () {
-        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('bar-element');
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
 
@@ -236,8 +256,6 @@
         assert.closeTo(data.frameworks["Flow"].firstUsed, new Date().getTime(), 10000);
       });
       test('lumo-detected', function () {
-        window.Vaadin = window.Vaadin || {};
-        window.Vaadin.Lumo = { version: "2.0.0-alpha5" };
         const stats = new UsageStatistics();
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
@@ -247,8 +265,8 @@
 
       });
       test('works with corrupted localstorage', function () {
-        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('bar-element');
         stats.storage.write('{ "foo": "bar" }');
         stats.gatherer.gather(stats.storage);
 
@@ -257,8 +275,8 @@
         assert.equal(data.elements["bar-element"].version, "1.2.3");
       });
       test('works with corrupted element data in localstorage', function () {
-        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('bar-element');
         stats.storage.write(JSON.stringify({ "elements": { "bar-element": "3.3.3" } }));
         stats.gatherer.gather(stats.storage);
 
@@ -286,8 +304,8 @@
         assert.equal(stats.sender.sentObject["usageStatisticsVersion"], UsageStatistics.version);
       });
       test('element-data-sent', function () {
-        window.Vaadin.BarElement = { is: "bar-element", version: "1.2.3" };
         const stats = new UsageStatistics();
+        stats.gatherer.knownVaadinElementNames.push('bar-element');
         stats.sender = new CaptureSender();
         stats.send();
         assert.equal(stats.sender.sentObject.elements["bar-element"].version, "1.2.3");
