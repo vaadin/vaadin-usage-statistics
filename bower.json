@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",
-    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector#89350c9"
+    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector#p3-preview"
   },
   "devDependencies": {
     "web-component-tester": "^6.4.1",
