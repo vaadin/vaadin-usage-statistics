@@ -366,13 +366,15 @@
 
   window.Vaadin = window.Vaadin || {};
   window.Vaadin.developmentModeCallback = window.Vaadin.developmentModeCallback || {};
-  window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] = function () {
-    try {
-      new UsageStatistics().maybeGatherAndSend();
-    } catch (e) {
-      // Intentionally ignored as this is not a problem in the app being developed
-    }
-  };
+
+  window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] =
+    window.Vaadin.developmentModeCallback["vaadin-usage-statistics"] || function () {
+      try {
+        new UsageStatistics().maybeGatherAndSend();
+      } catch (e) {
+        // Intentionally ignored as this is not a problem in the app being developed
+      }
+    };
 
   Vaadin.StatisticsGatherer = StatisticsGatherer;
   Vaadin.StatisticsStorage = StatisticsStorage;
