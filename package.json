@@ -1,6 +1,6 @@
 {
   "name": "@vaadin/vaadin-usage-statistics",
-  "version": "1.0.6-pre.2",
+  "version": "1.0.6",
   "description": "Gathers usage statistics for components used during application development",
   "main": "index.js",
   "directories": {
