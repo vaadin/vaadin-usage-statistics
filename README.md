@@ -8,7 +8,8 @@ Statistics are only gathered when the application is in [development mode](https
 
 ## Collected data
 * Vaadin products used in the application, including version numbers
-* [Frameworks](vaadin-usage-statistics-gatherer.html#L8) used in the application, including version numbers
+* [Frameworks](vaadin-usage-statistics.html#L17) used in the application, including version numbers
+* [Flow features](https://github.com/search?utf8=%E2%9C%93&q=org%3Avaadin+UsageStatistics.markAsUsed&type=Code) used in the application, including version numers
 * The first and last time a product was used
 * The first time statistics were gathered
 * Whether you are a registered vaadin.com user or not (true/false)
@@ -22,5 +23,14 @@ To opt-out from statistics, install the no-op version of the `vaadin-usage-stati
 bower install --save vaadin/vaadin-usage-statistics#optout
 ```
 You can verify this by checking that `vaadin-usage-statistics.html` is empty.
+
+If you are using Java, add to your pom.xml:
+```
+<dependency>
+  <groupId>org.webjars.bowergithub.vaadin</groupId>
+  <artifactId>vaadin-usage-statistics</artifactId>
+  <version>1.0.0-optout</version>
+</dependency>
+```
 
 If you have any questions on the use of the statistics, please contact statistics@vaadin.com.
