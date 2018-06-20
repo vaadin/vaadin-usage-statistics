@@ -1,17 +1,14 @@
 {
-  "name": "vaadin-usage-statistics",
-  "version": "1.0.1",
+  "name": "@vaadin/vaadin-usage-statistics",
+  "version": "1.0.6",
   "description": "Gathers usage statistics for components used during application development",
   "main": "index.js",
   "directories": {
     "test": "test"
   },
-  "dependencies": {
-    "bower": "^1.8.2",
-    "web-component-tester": "^6.4.1"
-  },
   "devDependencies": {
-    "yargs": "latest"
+    "bower": "^1.8.2",
+    "web-component-tester": "^6.5.0"
   },
   "scripts": {
     "test": "wct"
