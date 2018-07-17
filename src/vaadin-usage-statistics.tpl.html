@@ -1,0 +1,32 @@
+<!--
+
+This script gathers usage statistics from the application running in development mode.
+
+Statistics gathering is automatically disabled and excluded from production builds.
+
+For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.
+
+-->
+<link rel="import" href="../vaadin-development-mode-detector/vaadin-development-mode-detector.html">
+
+<script>
+(function() {
+  function usageStatistics() {
+    /** vaadin-dev-mode:start
+    ${vaadin-usage-statistics.js}
+    vaadin-dev-mode:end **/
+
+    return window.Vaadin.runIfDevelopmentMode(usageStatistics);
+  };
+
+  /**
+   * @namespace Vaadin
+   */
+  window.Vaadin = window.Vaadin || {};
+
+  /**
+   * @memberof Vaadin
+   */
+  window.Vaadin.usageStatistics = usageStatistics;
+})();
+</script>
