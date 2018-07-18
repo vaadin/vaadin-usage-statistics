@@ -5,17 +5,11 @@
   <meta charset="utf-8">
   <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-  <script src="../vaadin-usage-statistics.js"></script>
+  <script src="../src/vaadin-usage-statistics.js"></script>
 </head>
 
 <body>
   <script>
-    const Vaadin = window.Vaadin;
-    const UsageStatistics = Vaadin.UsageStatistics;
-    const StatisticsLogger = Vaadin.StatisticsLogger;
-    const StatisticsSender = Vaadin.StatisticsSender;
-    const StatisticsGatherer = Vaadin.StatisticsGatherer;
-
     const defineClasses = function () {
       window.DummyLogger = class DummyLogger extends StatisticsLogger {
         _isDebug() {
