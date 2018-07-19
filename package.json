@@ -2,7 +2,6 @@
   "name": "@vaadin/vaadin-usage-statistics",
   "version": "2.0.0-alpha2",
   "description": "Gathers usage statistics for components used during application development",
-  "main": "index.js",
   "directories": {
     "test": "test"
   },
