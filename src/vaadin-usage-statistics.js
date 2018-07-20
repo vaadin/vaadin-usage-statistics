@@ -98,6 +98,7 @@ class StatisticsGatherer {
         'vaadin-password-field',
         'vaadin-progress-bar',
         'vaadin-radio-button',
+        'vaadin-router-meta',
         'vaadin-split-layout',
         'vaadin-tab',
         'vaadin-tabs',
