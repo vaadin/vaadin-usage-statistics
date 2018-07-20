@@ -11,12 +11,10 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
 
 <script>
 (function() {
-  function usageStatistics() {
+  function maybeGatherAndSendStats() {
     /** vaadin-dev-mode:start
     ${vaadin-usage-statistics.js}
     vaadin-dev-mode:end **/
-
-    return window.Vaadin.runIfDevelopmentMode(usageStatistics);
   };
 
   /**
@@ -27,6 +25,8 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
   /**
    * @memberof Vaadin
    */
-  window.Vaadin.usageStatistics = usageStatistics;
+  window.Vaadin.usageStatistics = function() {
+    return window.Vaadin.runIfDevelopmentMode(maybeGatherAndSendStats);
+  };
 })();
 </script>
