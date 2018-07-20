@@ -2,13 +2,14 @@ import babel from 'rollup-plugin-babel';
 import pkg from './package.json';
 
 const config = [
-  // UMD bundle, transpiled (for the browsers that do not support ES modules).
-  // Also works in Node.
+  // Bundle and transpile the sources so that they can be executed
+  // in any supported browser. The IIFE format makes it easy to wrap the output
+  // into vaadin-dev-mode comments.
   {
     input: 'src/vaadin-usage-statistics.js',
     output: {
       format: 'iife',
-      file: 'vaadin-usage-statistics.js',
+      file: 'vaadin-usage-statistics.es5.js',
     },
     plugins: [
       babel({
