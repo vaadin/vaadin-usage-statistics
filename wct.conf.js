@@ -15,7 +15,7 @@ module.exports = {
       'macOS 10.12/iphone@11.2',
       'macOS 10.12/ipad@11.2',
       'Windows 10/chrome@65',
-      'macOS 10.12/safari@11.0'
+      'macOS 10.13/safari@11.1',
     ];
 
     if (env === 'saucelabs') {
