@@ -11,6 +11,6 @@
   "devDependencies": {
     "web-component-tester": "^6.4.1",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
-    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector#^1.1.0"
+    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector#^1.1.0-beta1"
   }
 }
