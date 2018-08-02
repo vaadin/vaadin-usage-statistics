@@ -65,6 +65,7 @@
     suite('first-use', function () {
       setup(() => {
         localStorage.clear();
+        window.Vaadin.registrations = [];
       });
       test('first-use-set-properly', function () {
         const stats = new UsageStatistics();
@@ -178,28 +179,25 @@
         localStorage.clear();
         //localStorage.setItem()
         window.Vaadin = {};
+        window.Vaadin.registrations = [];
       });
       suiteSetup(() => {
-        class FooElement extends HTMLElement {}
-        customElements.define('foo-element', FooElement);
-
-        class BarElement extends HTMLElement {
-          static get version() {
-            return "1.2.3";
-          }
-        }
-        customElements.define('bar-element', BarElement);
-
         class LumoStyles extends HTMLElement {
           static get version() {
             return "2.0.0-alpha5";
           }
         }
         customElements.define('vaadin-lumo-styles', LumoStyles);
+        class MaterialStyles extends HTMLElement {
+          static get version() {
+            return "1.1.0-beta1";
+          }
+        }
+        customElements.define('vaadin-material-styles', MaterialStyles);
       });
       test('element-without-version-found', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('foo-element');
+        window.Vaadin.registrations.push({ is: "foo-element" });
 
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
@@ -210,7 +208,7 @@
       });
       test('element-with-version-found', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('bar-element');
+        window.Vaadin.registrations.push({ is: "bar-element", version: "1.2.3" });
 
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
@@ -221,7 +219,7 @@
       });
       test('element-first-used-not-updated', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('bar-element');
+        window.Vaadin.registrations.push({ is: "bar-element", version: "1.2.3" });
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
 
@@ -233,7 +231,7 @@
       })
       test('element-last-used-updated', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('bar-element');
+        window.Vaadin.registrations.push({ is: "bar-element", version: "1.2.3" });
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
 
@@ -262,11 +260,18 @@
         assert.equal(data.themes["Lumo"].version, "2.0.0-alpha5");
         assert.equal(data.themes["Lumo"].firstUsed, data.themes["Lumo"].lastUsed);
         assert.closeTo(data.themes["Lumo"].firstUsed, new Date().getTime(), 10000);
-
+      });
+      test('material-detected', function () {
+        const stats = new UsageStatistics();
+        stats.gatherer.gather(stats.storage);
+        const data = stats.storage.read();
+        assert.equal(data.themes["Material"].version, "1.1.0-beta1");
+        assert.equal(data.themes["Material"].firstUsed, data.themes["Material"].lastUsed);
+        assert.closeTo(data.themes["Material"].firstUsed, new Date().getTime(), 10000);
       });
       test('works with corrupted localstorage', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('bar-element');
+        window.Vaadin.registrations.push({ is: "bar-element", version: "1.2.3" });
         stats.storage.write('{ "foo": "bar" }');
         stats.gatherer.gather(stats.storage);
 
@@ -276,7 +281,7 @@
       });
       test('works with corrupted element data in localstorage', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('bar-element');
+        window.Vaadin.registrations.push({ is: "bar-element", version: "1.2.3" });
         stats.storage.write(JSON.stringify({ "elements": { "bar-element": "3.3.3" } }));
         stats.gatherer.gather(stats.storage);
 
@@ -289,6 +294,7 @@
     suite('sender', function () {
       setup(() => {
         localStorage.clear();
+        window.Vaadin.registrations = [];
       });
       test('first-use-sent', function () {
         localStorage.setItem(UsageStatistics.firstUseKey, "123");
@@ -305,7 +311,7 @@
       });
       test('element-data-sent', function () {
         const stats = new UsageStatistics();
-        stats.gatherer.knownVaadinElementNames.push('bar-element');
+        window.Vaadin.registrations.push({ is: "bar-element", version: "1.2.3" });
         stats.sender = new CaptureSender();
         stats.send();
         assert.equal(stats.sender.sentObject.elements["bar-element"].version, "1.2.3");
