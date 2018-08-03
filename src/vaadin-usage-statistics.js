@@ -119,16 +119,16 @@ class StatisticsGatherer {
     }
   }
   getUsedVaadinElements(elements) {
-    this.knownVaadinElementNames.forEach(elementName => {
-      const version = this.getUsedVaadinElementVersion(elementName);
-      if (version) {
-        elements[elementName] = {version};
-      }
+    const elementClasses = window.Vaadin.registrations || [];
+    elementClasses.forEach(klass => {
+      const version = klass.version ? klass.version : "0.0.0";
+      elements[klass.is] = {version};
     });
   }
   getUsedVaadinThemes(themes) {
     [
-      'Lumo'
+      'Lumo',
+      'Material'
     ].forEach(themeName => {
       const elementName = `vaadin-${themeName.toLowerCase()}-styles`;
       const version = this.getUsedVaadinElementVersion(elementName);
