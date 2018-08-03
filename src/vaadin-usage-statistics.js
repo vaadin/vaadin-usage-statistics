@@ -1,3 +1,5 @@
+const getPolymerVersion = () => window.Polymer && window.Polymer.version;
+
 class StatisticsGatherer {
   constructor(logger) {
     this.now = new Date().getTime();
@@ -66,8 +68,9 @@ class StatisticsGatherer {
         }
       },
       'Polymer': function () {
-        if (window.Polymer && window.Polymer.version) {
-          return window.Polymer.version;
+        const version = getPolymerVersion();
+        if (version) {
+          return version;
         }
       },
       'Vue.js': function () {
@@ -77,7 +80,6 @@ class StatisticsGatherer {
       }
     };
   };
-
   getUsedVaadinElementVersion(elementName) {
     const klass = customElements.get(elementName);
     if (klass) {
@@ -85,7 +87,15 @@ class StatisticsGatherer {
     }
   }
   getUsedVaadinElements(elements) {
-    const elementClasses = window.Vaadin.registrations || [];
+    const version = getPolymerVersion();
+    let elementClasses;
+    if (version && version.indexOf('2') === 0) {
+      // Polymer 2: components classes are stored in window.Vaadin
+      elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c => c.is);
+    } else {
+      // Polymer 3: components classes are stored in window.Vaadin.registrations
+      elementClasses = window.Vaadin.registrations || [];
+    }
     elementClasses.forEach(klass => {
       const version = klass.version ? klass.version : "0.0.0";
       elements[klass.is] = {version};
