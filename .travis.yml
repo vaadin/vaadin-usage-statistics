@@ -1,7 +1,7 @@
 sudo: true
 dist: trusty
 language: node_js
-node_js: 8.9
+node_js: 8.11
 
 cache:
   directories:
@@ -23,7 +23,6 @@ script:
   - if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" && "$TRAVIS_BRANCH" != quick/* ]]; then
       if [[ "$POLYMER" = "2" ]]; then
         npm install &&
-        gulp lint &&
         polymer lint --rules polymer-2 --input *.html &&
         polymer test --env saucelabs;
       fi &&
@@ -32,7 +31,7 @@ script:
         rm -rf node_modules &&
         magi p3-convert --out . &&
         yarn install --flat &&
-        polymer test --npm --env saucelabs-p3;
+        polymer test --npm --env saucelabs;
       fi;
     fi
   - if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then
