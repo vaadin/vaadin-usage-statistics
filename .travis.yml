@@ -22,21 +22,20 @@ env:
 script:
   - if [[ "$TRAVIS_EVENT_TYPE" != "pull_request" && "$TRAVIS_BRANCH" != quick/* ]]; then
       if [[ "$POLYMER" = "2" ]]; then
-        npm install;
-        gulp lint;
-        polymer lint --rules polymer-2 --input *.html;
+        npm install &&
+        gulp lint &&
+        polymer lint --rules polymer-2 --input *.html &&
         polymer test --env saucelabs;
-      fi;
+      fi &&
       if [[ "$POLYMER" = "3" ]]; then
-        npm install -g yarn magi-cli;
-        (cd .. && git clone --depth 1 -b vaadin-components-rc git://github.com/web-padawan/polymer-modulizer.git && cd polymer-modulizer && npm link);
-        rm -rf node_modules;
-        magi p3-convert --out .;
-        yarn install --flat;
+        npm install -g yarn magi-cli polymer-modulizer &&
+        rm -rf node_modules &&
+        magi p3-convert --out . &&
+        yarn install --flat &&
         polymer test --npm --env saucelabs-p3;
       fi;
     fi
   - if [[ "$TRAVIS_EVENT_TYPE" = "cron" ]]; then
-      npm install;
+      npm install &&
       polymer test --env saucelabs-cron;
     fi
