@@ -47,6 +47,10 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     };
   }();
 
+  var getPolymerVersion = function getPolymerVersion() {
+    return window.Polymer && window.Polymer.version;
+  };
+
   var StatisticsGatherer = function () {
     function StatisticsGatherer(logger) {
       classCallCheck(this, StatisticsGatherer);
@@ -134,8 +138,9 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
             }
           }),
           'Polymer': function Polymer() {
-            if (window.Polymer && window.Polymer.version) {
-              return window.Polymer.version;
+            var version = getPolymerVersion();
+            if (version) {
+              return version;
             }
           },
           'Vue.js': function VueJs() {
@@ -156,23 +161,32 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     }, {
       key: 'getUsedVaadinElements',
       value: function getUsedVaadinElements(elements) {
-        var _this = this;
-
-        this.knownVaadinElementNames.forEach(function (elementName) {
-          var version = _this.getUsedVaadinElementVersion(elementName);
-          if (version) {
-            elements[elementName] = { version: version };
-          }
+        var version = getPolymerVersion();
+        var elementClasses = void 0;
+        if (version && version.indexOf('2') === 0) {
+          // Polymer 2: components classes are stored in window.Vaadin
+          elementClasses = Object.keys(window.Vaadin).map(function (c) {
+            return window.Vaadin[c];
+          }).filter(function (c) {
+            return c.is;
+          });
+        } else {
+          // Polymer 3: components classes are stored in window.Vaadin.registrations
+          elementClasses = window.Vaadin.registrations || [];
+        }
+        elementClasses.forEach(function (klass) {
+          var version = klass.version ? klass.version : "0.0.0";
+          elements[klass.is] = { version: version };
         });
       }
     }, {
       key: 'getUsedVaadinThemes',
       value: function getUsedVaadinThemes(themes) {
-        var _this2 = this;
+        var _this = this;
 
-        ['Lumo'].forEach(function (themeName) {
+        ['Lumo', 'Material'].forEach(function (themeName) {
           var elementName = 'vaadin-' + themeName.toLowerCase() + '-styles';
-          var version = _this2.getUsedVaadinElementVersion(elementName);
+          var version = _this.getUsedVaadinElementVersion(elementName);
           if (version) {
             themes[themeName] = { version: version };
           }
@@ -230,16 +244,6 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
         if (newStats != previousStats && Object.keys(storedStats).length > 0) {
           this.logger.debug("New stats: " + newStats);
         }
-      }
-    }, {
-      key: 'knownVaadinElementNames',
-      get: function get$1() {
-        if (!this._knownVaadinElementNames) {
-          var names = ['vaadin-button', 'vaadin-checkbox', 'vaadin-combo-box', 'vaadin-context-menu', 'vaadin-date-picker', 'vaadin-dialog', 'vaadin-dropdown-menu', 'vaadin-form-layout', 'vaadin-grid', 'vaadin-horizontal-layout', 'vaadin-icons', 'vaadin-item', 'vaadin-list-box', 'vaadin-notification', 'vaadin-password-field', 'vaadin-progress-bar', 'vaadin-radio-button', 'vaadin-router-meta', 'vaadin-split-layout', 'vaadin-tab', 'vaadin-tabs', 'vaadin-text-area', 'vaadin-text-field', 'vaadin-upload', 'vaadin-vertical-layout'];
-          this._knownVaadinElementNames = names;
-        }
-
-        return this._knownVaadinElementNames;
       }
     }]);
     return StatisticsGatherer;
@@ -372,14 +376,14 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     createClass(UsageStatistics, [{
       key: 'maybeGatherAndSend',
       value: function maybeGatherAndSend() {
-        var _this3 = this;
+        var _this2 = this;
 
         if (localStorage.getItem(UsageStatistics.optOutKey)) {
           return;
         }
         this.gatherer.gather(this.storage);
         setTimeout(function () {
-          _this3.maybeSend();
+          _this2.maybeSend();
         }, this.gatherDelay * 1000);
       }
     }, {
