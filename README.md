@@ -18,11 +18,24 @@ Statistics are only gathered when the application is in [development mode](https
 * The IP address the statistics is sent from
 
 ## Opting out
+
+### Bower
+
 To opt-out from statistics, install the no-op version of the `vaadin-usage-statistics` package using
 ```
 bower install --save vaadin/vaadin-usage-statistics#optout
 ```
 You can verify this by checking that `vaadin-usage-statistics.html` is empty.
+
+### npm
+
+If you are using npm, run the following command:
+```
+npx @vaadin/vaadin-usage-statistics disable
+````
+You can verify this by checking that `vaadin-usage-statistics.js` contains empty function.
+
+### Java
 
 If you are using Java, add to your pom.xml:
 ```

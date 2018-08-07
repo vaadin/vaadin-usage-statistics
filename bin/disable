@@ -1,0 +1,1 @@
+npm config set @vaadin/vaadin-usage-statistics:disabled true && npx rimraf node_modules package-lock.json && npm install

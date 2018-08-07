@@ -5,6 +5,10 @@
   "directories": {
     "test": "test"
   },
+  "bin": {
+    "disable": "./bin/disable",
+    "enable": "./bin/enable"
+  },
   "devDependencies": {
     "bower": "^1.8.2",
     "fs-extra": "^7.0.0",
