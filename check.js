@@ -1,7 +1,7 @@
 if (process.env.npm_package_config_disabled) {
   console.log(`
     You have disabled Vaadin development time usage statistics collection. To re-enable, run:
-    npx @vaadin/vaadin-usage-statistics enable
+    npx -p @vaadin/vaadin-usage-statistics enable
     For more details, see https://github.com/vaadin/vaadin-usage-statistics
   `);
 
@@ -29,7 +29,7 @@ if (process.env.npm_package_config_disabled) {
 } else {
   console.log(`
     Vaadin collects development time usage statistics to improve this product. To opt-out, run:
-    npx @vaadin/vaadin-usage-statistics disable
+    npx -p @vaadin/vaadin-usage-statistics disable
     For more details, see https://github.com/vaadin/vaadin-usage-statistics
   `);
 }
