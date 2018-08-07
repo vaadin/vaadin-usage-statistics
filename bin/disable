@@ -1,0 +1,2 @@
+npm install rimraf -g --no-save
+npm config set @vaadin/vaadin-usage-statistics:disabled true && rimraf node_modules package-lock.json && npm install

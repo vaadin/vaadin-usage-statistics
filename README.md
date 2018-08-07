@@ -31,7 +31,7 @@ You can verify this by checking that `vaadin-usage-statistics.html` is empty.
 
 If you are using npm, run the following command:
 ```
-npm config set @vaadin/vaadin-usage-statistics:disabled true && rm -rf node_modules && rm -rf package-lock.json && npm install
+npx @vaadin/vaadin-usage-statistics disable
 ````
 You can verify this by checking that `vaadin-usage-statistics.js` contains empty function.
 
