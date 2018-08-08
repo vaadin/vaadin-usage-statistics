@@ -30,6 +30,21 @@
       }
     }
 
+    // define mock theme globally depending on Polymer version
+    const defineTheme = theme => {
+      const {name, version} = theme;
+      if (isPolymer2) {
+        window.Vaadin[name] = {version};
+      } else {
+        const themeClass = class extends HTMLElement {
+          static get version() {
+            return version;
+          }
+        }
+        customElements.define(`vaadin-${name.toLowerCase()}-styles`, themeClass);
+      }
+    }
+
     const defineClasses = function () {
       window.DummyLogger = class DummyLogger extends StatisticsLogger {
         _isDebug() {
@@ -195,20 +210,6 @@
         window.Vaadin = {};
         window.Vaadin.registrations = [];
       });
-      suiteSetup(() => {
-        class LumoStyles extends HTMLElement {
-          static get version() {
-            return "2.0.0-alpha5";
-          }
-        }
-        customElements.define('vaadin-lumo-styles', LumoStyles);
-        class MaterialStyles extends HTMLElement {
-          static get version() {
-            return "1.1.0-beta1";
-          }
-        }
-        customElements.define('vaadin-material-styles', MaterialStyles);
-      });
       test('element-without-version-found', function () {
         const stats = new UsageStatistics();
         defineElement({ is: "foo-element" });
@@ -268,6 +269,7 @@
         assert.closeTo(data.frameworks["Flow"].firstUsed, new Date().getTime(), 10000);
       });
       test('lumo-detected', function () {
+        defineTheme({name: 'Lumo', version: '2.0.0-alpha5'});
         const stats = new UsageStatistics();
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();
@@ -276,6 +278,7 @@
         assert.closeTo(data.themes["Lumo"].firstUsed, new Date().getTime(), 10000);
       });
       test('material-detected', function () {
+        defineTheme({name: 'Material', version: '1.1.0-beta1'});
         const stats = new UsageStatistics();
         stats.gatherer.gather(stats.storage);
         const data = stats.storage.read();

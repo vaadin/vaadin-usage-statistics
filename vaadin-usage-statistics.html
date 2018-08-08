@@ -151,14 +151,6 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
         };
       }
     }, {
-      key: 'getUsedVaadinElementVersion',
-      value: function getUsedVaadinElementVersion(elementName) {
-        var klass = customElements.get(elementName);
-        if (klass) {
-          return klass.version || "0.0.0";
-        }
-      }
-    }, {
       key: 'getUsedVaadinElements',
       value: function getUsedVaadinElements(elements) {
         var version = getPolymerVersion();
@@ -182,13 +174,18 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     }, {
       key: 'getUsedVaadinThemes',
       value: function getUsedVaadinThemes(themes) {
-        var _this = this;
-
         ['Lumo', 'Material'].forEach(function (themeName) {
-          var elementName = 'vaadin-' + themeName.toLowerCase() + '-styles';
-          var version = _this.getUsedVaadinElementVersion(elementName);
-          if (version) {
-            themes[themeName] = { version: version };
+          var theme;
+          var version = getPolymerVersion();
+          if (version && version.indexOf('2') === 0) {
+            // Polymer 2: themes are stored in window.Vaadin
+            theme = window.Vaadin[themeName];
+          } else {
+            // Polymer 3: themes are stored in custom element registry
+            theme = customElements.get('vaadin-' + themeName.toLowerCase() + '-styles');
+          }
+          if (theme && theme.version) {
+            themes[themeName] = { version: theme.version };
           }
         });
       }
@@ -376,14 +373,14 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
     createClass(UsageStatistics, [{
       key: 'maybeGatherAndSend',
       value: function maybeGatherAndSend() {
-        var _this2 = this;
+        var _this = this;
 
         if (localStorage.getItem(UsageStatistics.optOutKey)) {
           return;
         }
         this.gatherer.gather(this.storage);
         setTimeout(function () {
-          _this2.maybeSend();
+          _this.maybeSend();
         }, this.gatherDelay * 1000);
       }
     }, {
