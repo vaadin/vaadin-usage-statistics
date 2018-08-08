@@ -8,7 +8,7 @@ Statistics are only gathered when the application is in [development mode](https
 
 ## Collected data
 * Vaadin products used in the application, including version numbers
-* [Frameworks](vaadin-usage-statistics.html#L17) used in the application, including version numbers
+* [Frameworks](src/vaadin-usage-statistics.js#L9) used in the application, including version numbers
 * [Flow features](https://github.com/search?utf8=%E2%9C%93&q=org%3Avaadin+UsageStatistics.markAsUsed&type=Code) used in the application, including version numers
 * The first and last time a product was used
 * The first time statistics were gathered
