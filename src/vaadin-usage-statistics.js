@@ -80,12 +80,6 @@ class StatisticsGatherer {
       }
     };
   };
-  getUsedVaadinElementVersion(elementName) {
-    const klass = customElements.get(elementName);
-    if (klass) {
-      return klass.version || "0.0.0";
-    }
-  }
   getUsedVaadinElements(elements) {
     const version = getPolymerVersion();
     let elementClasses;
@@ -106,10 +100,17 @@ class StatisticsGatherer {
       'Lumo',
       'Material'
     ].forEach(themeName => {
-      const elementName = `vaadin-${themeName.toLowerCase()}-styles`;
-      const version = this.getUsedVaadinElementVersion(elementName);
-      if (version) {
-        themes[themeName] = {version};
+      var theme;
+      var version = getPolymerVersion();
+      if (version && version.indexOf('2') === 0) {
+        // Polymer 2: themes are stored in window.Vaadin
+        theme = window.Vaadin[themeName];
+      } else {
+        // Polymer 3: themes are stored in custom element registry
+        theme = customElements.get(`vaadin-${themeName.toLowerCase()}-styles`);
+      }
+      if (theme && theme.version) {
+        themes[themeName] = {version: theme.version};
       }
     });
   }
