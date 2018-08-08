@@ -6,7 +6,7 @@
   ],
   "license": "Apache-2.0",
   "dependencies": {
-    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector#^2.0.0-alpha2"
+    "vaadin-development-mode-detector": "vaadin/vaadin-development-mode-detector#^2.0.0-beta1"
   },
   "devDependencies": {
     "web-component-tester": "^6.4.1",
