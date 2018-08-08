@@ -8,7 +8,7 @@ Statistics are only gathered when the application is in [development mode](https
 
 ## Collected data
 * Vaadin products used in the application, including version numbers
-* [Frameworks](vaadin-usage-statistics.html#L17) used in the application, including version numbers
+* [Frameworks](src/vaadin-usage-statistics.js#L9) used in the application, including version numbers
 * [Flow features](https://github.com/search?utf8=%E2%9C%93&q=org%3Avaadin+UsageStatistics.markAsUsed&type=Code) used in the application, including version numers
 * The first and last time a product was used
 * The first time statistics were gathered
@@ -18,11 +18,24 @@ Statistics are only gathered when the application is in [development mode](https
 * The IP address the statistics is sent from
 
 ## Opting out
+
+### Bower
+
 To opt-out from statistics, install the no-op version of the `vaadin-usage-statistics` package using
 ```
 bower install --save vaadin/vaadin-usage-statistics#optout
 ```
 You can verify this by checking that `vaadin-usage-statistics.html` is empty.
+
+### npm
+
+If you are using npm, run the following command:
+```
+npm explore @vaadin/vaadin-usage-statistics -- npm run disable
+````
+You can verify this by checking that `vaadin-usage-statistics.js` contains empty function.
+
+### Java
 
 If you are using Java, add to your pom.xml:
 ```

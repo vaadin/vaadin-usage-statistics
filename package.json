@@ -1,22 +1,42 @@
 {
   "name": "@vaadin/vaadin-usage-statistics",
-  "version": "1.1.0-beta1",
+  "version": "2.0.0-beta1",
   "description": "Gathers usage statistics for components used during application development",
-  "main": "index.js",
   "directories": {
     "test": "test"
   },
   "devDependencies": {
     "bower": "^1.8.2",
-    "web-component-tester": "^6.5.0"
+    "fs-extra": "^7.0.0",
+    "gulp": "^3.9.1",
+    "husky": "^0.14.3",
+    "web-component-tester": "^6.5.0",
+    "babel-core": "^6.26.3",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-preset-env": "^1.7.0",
+    "rollup": "^0.59.0",
+    "rollup-plugin-babel": "^3.0.4"
   },
   "scripts": {
-    "test": "wct"
+    "test": "wct",
+    "transpile": "rollup -c",
+    "precommit": "gulp auto-amend-commit"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/vaadin/vaadin-usage-statistics.git"
   },
+  "browserslist": [
+    "last 2 Chrome major versions",
+    "last 2 Android major versions",
+    "last 2 Firefox major versions",
+    "last 2 Edge major versions",
+    "last 2 Safari major versions",
+    "last 2 iOS major versions",
+    "Safari 9",
+    "iOS 9",
+    "IE 11"
+  ],
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
