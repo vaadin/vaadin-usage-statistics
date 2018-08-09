@@ -37,7 +37,12 @@
     "iOS 9",
     "IE 11"
   ],
-  "author": "",
+  "files": [
+    "vaadin-usage-statistics.js",
+    "vaadin-usage-statistics-optout.js",
+    "check.js"
+  ],
+  "author": "Vaadin Ltd",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/vaadin/vaadin-usage-statistics/issues"
