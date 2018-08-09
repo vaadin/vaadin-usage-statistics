@@ -342,6 +342,7 @@ class UsageStatistics {
 }
 
 try {
+  window.Vaadin = window.Vaadin || {};
   window.Vaadin.usageStatistics = window.Vaadin.usageStatistics || new UsageStatistics();
   window.Vaadin.usageStatistics.maybeGatherAndSend();
 } catch (e) {
