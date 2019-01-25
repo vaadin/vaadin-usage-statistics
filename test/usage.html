@@ -79,6 +79,13 @@
       defineClasses();
     });
 
+    suite('singleton', function() {
+      test('global-namespace-singleton-present', function () {
+        assert.ok(window.Vaadin.usageStatsChecker);
+        assert.ok(window.Vaadin.usageStatsChecker.maybeGatherAndSend);
+      });
+    });
+
     suite('opt-out', function () {
       setup(() => {
         localStorage.clear();
