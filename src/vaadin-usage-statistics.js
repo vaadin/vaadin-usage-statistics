@@ -343,8 +343,8 @@ class UsageStatistics {
 
 try {
   window.Vaadin = window.Vaadin || {};
-  window.Vaadin.usageStatistics = window.Vaadin.usageStatistics || new UsageStatistics();
-  window.Vaadin.usageStatistics.maybeGatherAndSend();
+  window.Vaadin.usageStatsChecker = window.Vaadin.usageStatsChecker || new UsageStatistics();
+  window.Vaadin.usageStatsChecker.maybeGatherAndSend();
 } catch (e) {
   // Intentionally ignored as this is not a problem in the app being developed
 }
