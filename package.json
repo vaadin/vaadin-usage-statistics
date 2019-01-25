@@ -5,6 +5,7 @@
   "directories": {
     "test": "test"
   },
+  "main": "vaadin-usage-statistics.html",
   "devDependencies": {
     "bower": "^1.8.2",
     "fs-extra": "^7.0.0",
@@ -22,10 +23,7 @@
     "transpile": "rollup -c",
     "precommit": "gulp auto-amend-commit"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vaadin/vaadin-usage-statistics.git"
-  },
+  "repository": "vaadin/vaadin-usage-statistics",
   "browserslist": [
     "last 2 Chrome major versions",
     "last 2 Android major versions",
