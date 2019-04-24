@@ -73,6 +73,18 @@ class StatisticsGatherer {
           return version;
         }
       },
+      'LitElement': function () {
+        const version = window.litElementVersions && window.litElementVersions[0];
+        if (version) {
+          return version;
+        }
+      },
+      'LitHtml': function () {
+        const version = window.litHtmlVersions && window.litHtmlVersions[0];
+        if (version) {
+          return version;
+        }
+      },
       'Vue.js': function () {
         if (window.Vue) {
           return window.Vue.version;

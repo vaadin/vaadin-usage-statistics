@@ -293,6 +293,20 @@
         assert.equal(data.themes["Material"].firstUsed, data.themes["Material"].lastUsed);
         assert.closeTo(data.themes["Material"].firstUsed, new Date().getTime(), 10000);
       });
+      test('litelement-detected', function () {
+        window.litElementVersions = ["1.2.3"];
+        const stats = new UsageStatistics();
+        stats.gatherer.gather(stats.storage);
+        const data = stats.storage.read();
+        assert.equal(data.frameworks["LitElement"].version, "1.2.3");
+      });
+      test('lithtml-detected', function () {
+        window.litHtmlVersions = ["4.5.6"];
+        const stats = new UsageStatistics();
+        stats.gatherer.gather(stats.storage);
+        const data = stats.storage.read();
+        assert.equal(data.frameworks["LitHtml"].version, "4.5.6");
+      });
       test('works with corrupted localstorage', function () {
         const stats = new UsageStatistics();
         defineElement({ is: "bar-element", version: "1.2.3" });
