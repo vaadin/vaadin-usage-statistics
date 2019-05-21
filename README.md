@@ -19,6 +19,31 @@ Statistics are only gathered when the application is in [development mode](https
 
 ## Opting out
 
+### npm and Vaadin 14+ (using npm)
+
+Using npm, you can disable it for the machine by running
+```
+npm explore @vaadin/vaadin-usage-statistics -- npm run disable
+```
+or you can disable it for the project by adding
+```
+   "vaadin": { "disableUsageStatistics": true }
+```
+to your project `package.json` and running `npm install` again (remove `node_modules` if needed).
+
+You can verify this by checking that `vaadin-usage-statistics.js` contains an empty function.
+
+### Vaadin 10 - 14 (using Bower)
+
+Add to your pom.xml:
+```
+<dependency>
+  <groupId>org.webjars.bowergithub.vaadin</groupId>
+  <artifactId>vaadin-usage-statistics</artifactId>
+  <version>1.0.0-optout</version>
+</dependency>
+```
+
 ### Bower
 
 To opt-out from statistics, install the no-op version of the `vaadin-usage-statistics` package using
@@ -27,23 +52,5 @@ bower install --save vaadin/vaadin-usage-statistics#optout
 ```
 You can verify this by checking that `vaadin-usage-statistics.html` is empty.
 
-### npm
-
-If you are using npm, run the following command:
-```
-npm explore @vaadin/vaadin-usage-statistics -- npm run disable
-````
-You can verify this by checking that `vaadin-usage-statistics.js` contains empty function.
-
-### Java
-
-If you are using Java, add to your pom.xml:
-```
-<dependency>
-  <groupId>org.webjars.bowergithub.vaadin</groupId>
-  <artifactId>vaadin-usage-statistics</artifactId>
-  <version>1.0.0-optout</version>
-</dependency>
-```
 
 If you have any questions on the use of the statistics, please contact statistics@vaadin.com.
