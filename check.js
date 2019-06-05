@@ -27,23 +27,10 @@ if (disabledForMachine || disabledForProject) {
 `);
   }
   try {
-    fs.renameSync('vaadin-usage-statistics.js', 'vaadin-usage-statistics.js.bak');
+    fs.copyFileSync('vaadin-usage-statistics-optout.js', 'vaadin-usage-statistics.js');
   } catch (err) {
-    if (err.code === 'ENOENT') {
-      console.log('File not found!');
-    } else {
-      throw err;
-    }
-  }
-
-  try {
-    fs.renameSync('vaadin-usage-statistics-optout.js', 'vaadin-usage-statistics.js');
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      console.log('File not found!');
-    } else {
-      throw err;
-    }
+    console.log('Error while copying file!');
+    throw err;
   }
 } else {
   console.log(`
@@ -55,28 +42,11 @@ if (disabledForMachine || disabledForProject) {
 
     For more details, see https://github.com/vaadin/vaadin-usage-statistics
   `);
-  /* restore backup files if previously disabled */
-  if (fs.existsSync('vaadin-usage-statistics.js.bak')) {
-    try {
-      fs.renameSync('vaadin-usage-statistics.js', 'vaadin-usage-statistics-optout.js');
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.log('File not found!');
-      } else {
-        throw err;
-      }
-    }
-
-    try {
-      fs.renameSync('vaadin-usage-statistics.js.bak', 'vaadin-usage-statistics.js');
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.log('File not found!');
-
-      } else {
-        throw err;
-      }
-    }
+  try {
+    fs.copyFileSync('vaadin-usage-statistics-collect.js', 'vaadin-usage-statistics.js');
+  } catch (err) {
+    console.log('Error while copying file!');
+    throw err;
   }
 }
 
