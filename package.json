@@ -36,7 +36,7 @@
     "IE 11"
   ],
   "files": [
-    "vaadin-usage-statistics.js",
+    "vaadin-usage-statistics-collect.js",
     "vaadin-usage-statistics-optout.js",
     "check.js"
   ],
