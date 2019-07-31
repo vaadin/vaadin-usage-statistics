@@ -2,6 +2,7 @@ var fs = require('fs');
 
 const disabledForMachine = process.env.npm_package_config_disabled;
 const greetingLogged = process.env.npm_package_config_logged;
+const optoutLogged = process.env.npm_package_config_optout;
 
 let disabledForProject = false;
 
@@ -14,11 +15,11 @@ if (fs.existsSync("../../../package.json")) {
 
 if (disabledForMachine || disabledForProject) {
   if (disabledForMachine) {
-    console.log(`
+    !optoutLogged && console.log(`
     You have disabled Vaadin development time usage statistics collection. To re-enable, run:
     npm explore @vaadin/vaadin-usage-statistics -- npm run enable
     For more details, see https://github.com/vaadin/vaadin-usage-statistics
-`);
+  `);
   } else {
     console.log(`
     You have disabled Vaadin development time usage statistics collection. To re-enable, remove:
