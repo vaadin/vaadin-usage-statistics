@@ -4,6 +4,6 @@
     "\"license\": \"Apache-2.0\","
   ],
   "to": [
-    "\"license\": \"Apache-2.0\",\n\"scripts\": {\n\"postinstall\": \"node check.js\",\n\"disable\": \"npm config set @vaadin/vaadin-usage-statistics:disabled true && npm run postinstall\",\n\"enable\": \"npm config set @vaadin/vaadin-usage-statistics:disabled false && npm run postinstall\"\n},"
+    "\"license\": \"Apache-2.0\",\n\"scripts\": {\n\"postinstall\": \"node check.js && npm config set @vaadin/vaadin-usage-statistics:greeting-logged true\",\n\"disable\": \"npm config set @vaadin/vaadin-usage-statistics:disabled true && npm run postinstall && npm config set @vaadin/vaadin-usage-statistics:optout-logged true\",\n\"enable\": \"npm config set @vaadin/vaadin-usage-statistics:disabled false && npm config set @vaadin/vaadin-usage-statistics:greeting-logged false && npm config set @vaadin/vaadin-usage-statistics:optout-logged false && npm run postinstall\"\n},"
   ]
 }
