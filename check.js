@@ -20,14 +20,6 @@ if (disabledForMachine || disabledForProject) {
     npm explore @vaadin/vaadin-usage-statistics -- npm run enable
     For more details, see https://github.com/vaadin/vaadin-usage-statistics
   `);
-  } else {
-    console.log(`
-    You have disabled Vaadin development time usage statistics collection. To re-enable, remove:
-    "vaadin": { "disableUsageStatistics": true }
-    from the project package.json
-
-    For more details, see https://github.com/vaadin/vaadin-usage-statistics
-`);
   }
   try {
     fs.copyFileSync('vaadin-usage-statistics-optout.js', 'vaadin-usage-statistics.js');
