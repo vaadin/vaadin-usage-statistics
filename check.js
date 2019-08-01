@@ -1,8 +1,8 @@
 var fs = require('fs');
 
 const disabledForMachine = process.env.npm_package_config_disabled;
-const greetingLogged = process.env.npm_package_config_logged;
-const optoutLogged = process.env.npm_package_config_optout;
+const greetingLogged = process.env.npm_package_config_greeting_logged;
+const optoutLogged = process.env.npm_package_config_optout_logged;
 
 let disabledForProject = false;
 
