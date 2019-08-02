@@ -276,7 +276,7 @@ class UsageStatistics {
 
   }
   static get version() {
-    return '2.0.1';
+    return '2.0.6';
   }
   static get firstUseKey() {
     return 'vaadin.statistics.firstuse';
