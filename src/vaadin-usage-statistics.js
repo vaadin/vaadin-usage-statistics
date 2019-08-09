@@ -133,7 +133,7 @@ class StatisticsGatherer {
       try {
         const version = detector();
         if (version) {
-          frameworks[framework] = { "version": version };
+          frameworks[framework] = {version};
         }
       } catch (e) {
       }
@@ -163,9 +163,9 @@ class StatisticsGatherer {
       const keys = Object.keys(gatheredStats[type]);
       keys.forEach(key => {
         if (!storedStats[type][key] || typeof storedStats[type][key] != typeof {}) {
-          storedStats[type][key] = { "firstUsed": now };
+          storedStats[type][key] = { firstUsed: now };
         }
-        // Discards any previously logged version numebr
+        // Discards any previously logged version number
         storedStats[type][key].version = gatheredStats[type][key].version;
         storedStats[type][key].lastUsed = now;
       });

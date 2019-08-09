@@ -210,7 +210,7 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
           try {
             var version = detector();
             if (version) {
-              frameworks[framework] = { "version": version };
+              frameworks[framework] = { version: version };
             }
           } catch (e) {}
         });
@@ -240,9 +240,9 @@ For details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistic
           var keys = Object.keys(gatheredStats[type]);
           keys.forEach(function (key) {
             if (!storedStats[type][key] || _typeof(storedStats[type][key]) != _typeof({})) {
-              storedStats[type][key] = { "firstUsed": now };
+              storedStats[type][key] = { firstUsed: now };
             }
-            // Discards any previously logged version numebr
+            // Discards any previously logged version number
             storedStats[type][key].version = gatheredStats[type][key].version;
             storedStats[type][key].lastUsed = now;
           });
