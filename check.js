@@ -34,11 +34,13 @@ if (disabledForMachine || disabledForProject) {
 
     For more details, see https://github.com/vaadin/vaadin-usage-statistics
   `);
-  try {
-    fs.copyFileSync('vaadin-usage-statistics-collect.js', 'vaadin-usage-statistics.js');
-  } catch (err) {
-    console.log('Error while copying file!');
-    throw err;
+  const stats = fs.readFileSync('vaadin-usage-statistics.js').toString();
+  if (stats.startsWith(`export * from './vaadin-usage-statistics-collect.js';`) === false) {
+    try {
+      fs.copyFileSync('vaadin-usage-statistics-collect.js', 'vaadin-usage-statistics.js');
+    } catch (err) {
+      console.log('Error while copying file!');
+      throw err;
+    }
   }
 }
-
