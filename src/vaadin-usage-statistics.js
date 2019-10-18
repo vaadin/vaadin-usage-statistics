@@ -95,6 +95,10 @@ class StatisticsGatherer {
   getUsedVaadinElements(elements) {
     const version = getPolymerVersion();
     let elementClasses;
+    // NOTE: In case you edit the code here, YOU MUST UPDATE any statistics reporting code in Flow.
+    // Check all locations calling the method getEntries() in
+    // https://github.com/vaadin/flow/blob/master/flow-server/src/main/java/com/vaadin/flow/internal/UsageStatistics.java#L106
+    // Currently it is only used by BootstrapHandler.
     if (version && version.indexOf('2') === 0) {
       // Polymer 2: components classes are stored in window.Vaadin
       elementClasses = Object.keys(window.Vaadin).map(c => window.Vaadin[c]).filter(c => c.is);
