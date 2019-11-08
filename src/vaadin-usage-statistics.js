@@ -303,7 +303,7 @@ class UsageStatistics {
   }
 
   lottery() {
-    return Math.random() <= 0.05;
+    return true;
   }
 
   currentMonth() {
