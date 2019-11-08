@@ -189,26 +189,6 @@
         assert.isTrue(lotteryCalled);
         assert.isTrue(sendCalled);
       });
-      test('5-percent-success-rate', function () {
-        var sendCalled = 0;
-
-        const stats = new UsageStatistics();
-        stats.initialDelay = 0;
-
-        class MockSender extends StatisticsSender {
-          send(data) {
-            sendCalled++;
-          }
-        }
-        stats.sender = new MockSender();
-        for (var i = 0; i < 5000; i++) {
-          localStorage.setItem(UsageStatistics.monthProcessedKey, 0);
-          stats.maybeSend();
-        }
-
-        // Configured to be 5%
-        assert.closeTo(sendCalled, 250, 80);
-      }).timeout(20000);
     });
     suite('gather', function () {
       setup(() => {
