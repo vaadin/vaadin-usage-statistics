@@ -50,5 +50,10 @@
   "bugs": {
     "url": "https://github.com/vaadin/vaadin-usage-statistics/issues"
   },
-  "homepage": "https://github.com/vaadin/vaadin-usage-statistics#readme"
+  "homepage": "https://github.com/vaadin/vaadin-usage-statistics#readme",
+  "overrides": {
+    "wct-sauce": {
+      "sauce-connect-launcher": "vaadin/sauce-connect-launcher#upgrade-sauce-connect-5"
+    }
+  }
 }
